@@ -31,7 +31,7 @@ resource "azurerm_storage_account" "sa" {
 }
 
 module "diag" {
-  source                = "github.com/Coalfire-CF/ACE-Azure-Diaganostics?ref=v1.0.1"
+  source                = "github.com/Coalfire-CF/ACE-Azure-Diagnostics?ref=v1.0.1"
   diag_log_analytics_id = var.diag_log_analytics_id
   resource_id           = azurerm_storage_account.sa.id
   resource_type         = "sa"
