@@ -29,7 +29,7 @@ Other Compliance Levels: N/A
 | location | Region SA will be deployed in | - | string | yes |
 | resource_group_name | Azure Resource Group resource will be deployed in | string | - | yes |
 | replication_type | LRS/GRS/ZRS/etc. | string | - | yes |
-| diag_log_analytics_id | | string | - | yes |
+| diag_log_analytics_id | ID of the Log Analytics workspace Diagnostics settings are sent to | string | - | yes |
 | account_kind | Storage Account Type  | string | - | yes |
 
 ## Outputs
