@@ -7,10 +7,15 @@ Use this module to create a V2 Storage Account.
 ### Versions
 
 Terraform: 1.1.7
+
 AzureRM Provider: 3.4.1
+
 Validated Cloud: Government
+
 FedRAMP Compliance Level: Mod/High
+
 DoD Impact Compliance Level: N/A
+
 Other Compliance Levels: N/A
 
 ## Inputs
