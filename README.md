@@ -23,10 +23,10 @@ Other Compliance Levels: N/A
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:-----:|
 | global_tags | Global Tags | map(string) | - | yes |
-| regional_tags | Regional Tags | map(string) | none | yes |
+| regional_tags | Regional Tags | map(string) | - | yes |
 | sa_tags | Tags specific to the Storage Account | map(string)| | |
 | sa_name | Name of the Storage Account | string | - | yes |
-| location | Region SA will be deployed in | - | string | yes |
+| location | Region SA will be deployed in | string | - | yes |
 | resource_group_name | Azure Resource Group resource will be deployed in | string | - | yes |
 | replication_type | LRS/GRS/ZRS/etc. | string | - | yes |
 | diag_log_analytics_id | ID of the Log Analytics workspace Diagnostics settings are sent to | string | - | yes |
