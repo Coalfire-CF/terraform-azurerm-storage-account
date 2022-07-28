@@ -13,12 +13,6 @@ FedRAMP Compliance Level: Mod/High
 DoD Impact Compliance Level: -
 Other Compliance Levels: -
 
-## Resource List
-
-These are the resources that this module supports:
-
-- X
-
 ## Inputs
 
 | Name | Description | Type | Default | Required |
