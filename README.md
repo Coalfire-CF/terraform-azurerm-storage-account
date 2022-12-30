@@ -73,7 +73,7 @@ provider "azurerm" {
 }
 
 module "core_sa" {
-  ssource                    = "github.com/Coalfire-CF/ACE-Azure-StorageAccount?ref=vX.X.X"
+  source                    = "github.com/Coalfire-CF/ACE-Azure-StorageAccount?ref=vX.X.X"
   name                       = "${replace(var.resource_prefix, "-", "")}tfstatesa"
   resource_group_name        = azurerm_resource_group.management.name
   location                   = var.location
