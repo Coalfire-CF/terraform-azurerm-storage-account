@@ -116,7 +116,7 @@ resource "azurerm_advanced_threat_protection" "main" {
 }
 
 module "diag" {
-  source                = "../msci-azure-diagnostic"
+  source                = "github.com/Coalfire-CF/ACE-Azure-Diagnostics?ref=v1.0.1"
   diag_log_analytics_id = var.diag_log_analytics_id
   resource_id           = azurerm_storage_account.main.id
   resource_type         = "sa"
