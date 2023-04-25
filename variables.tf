@@ -32,6 +32,7 @@ variable "diag_log_analytics_id" {
 variable "account_kind" {
   type        = string
   description = "Account Kind for the Storage Account"
+  default     = "Storagev2"
 }
 
 variable "account_tier" {
