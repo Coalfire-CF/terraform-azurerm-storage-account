@@ -25,17 +25,13 @@ jobs:
     - name: Run Checkov on changed Terraform files
       id: checkov
       run: |
-        FILES=$(git diff --name-only --diff-filter=d ${{ github.event.before }} ${{ github.event.after }} -- '*.tf' | tr '\n' ' ')
-        if [ -n "$FILES" ]; then
-          checkov_results=()
-          for file in $FILES; do
-            result=$(checkov -f $file --output json --quiet --framework terraform)
-            checkov_results+=("$result")
-          done
-          printf '%s\n' "${checkov_results[@]}" | jq -s 'reduce .[] as $item ({}; . * $item)' > checkov_results.json
-        else
-          echo "No Terraform files changed."
-        fi
+      FILES=$(git diff --name-only --diff-filter=d 7957089d3ce271cee3363403c25e29e0e56fba33 eb0999fdfa401ffc22422a138eb51dafa4d85027 -- '*.tf' | tr '\n' ' ')
+
+      if [ -n "$FILES" ]; then
+        checkov --directory . --output json --quiet --framework terraform > checkov_results.json
+      else
+      echo "No Terraform files changed."
+      fi
 
     - name: Comment on PR
       if: steps.checkov.outputs.checkov_result != ''
