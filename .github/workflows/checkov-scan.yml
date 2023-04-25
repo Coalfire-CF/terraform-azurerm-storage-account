@@ -51,37 +51,33 @@ jobs:
         echo "CHECKOV_OUTPUT=$RESULTS" >> $GITHUB_ENV
         echo "CHECKOV_PASSED=$PASSED" >> $GITHUB_ENV
 
-      - name: Create comment with Checkov results
-        uses: actions/github-script@v5
-        if: ${{ env.CHECKOV_OUTPUT != '[]' }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let output = '';
+    - name: Create comment with Checkov results
+      uses: actions/github-script@v5
+      if: ${{ env.CHECKOV_OUTPUT != '[]' }}
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          let output = '';
 
-            if (process.env.CHECKOV_PASSED === 'true') {
-              output = '#### Checkov Scan Results 📖: All checks passed!';
-            } else {
-              output = `#### Checkov Scan Results 📖:
-              <details>
-              <summary>Show Details</summary>
+          if (process.env.CHECKOV_PASSED === 'true') {
+            output = '#### Checkov Scan Results 📖: All checks passed!';
+          } else {
+            output = `#### Checkov Scan Results 📖:
+            <details>
+            <summary>Show Details</summary>
 
-              | Check ID | Description | File | Resource | Checkov Result |
-              | -------- | ----------- | ---- | -------- | -------------- |
-              ${JSON.parse(process.env.CHECKOV_OUTPUT)
-                .map((check) => {
-                  return `| ${check.check_id} | ${check.check_name} | ${check.file_path} | ${check.resource} | ${check.check_result.result} |`;
-                })
-                .join("\n")}
+            | Check ID | Description | File | Resource | Checkov Result |
+            | -------- | ----------- | ---- | -------- | -------------- |
+            ${JSON.parse(process.env.CHECKOV_OUTPUT)
+              .map((check) => {
+                return `| ${check.check_id} | ${check.check_name} | ${check.file_path} | ${check.resource} | ${check.check_result.result} |`;
+              })
+              .join("\n")}
 
-              </details>`;
-            }
+            </details>`;
+          }
 
-            output += `\n\n*Pusher: @${{ github.actor }}, Action: ${{ github.event_name }}, Working Directory: ${{ github.workspace }}, Workflow: ${{ github.workflow }}*`;
+          output += `\n\n*Pusher: @${{ github.actor }}, Action: ${{ github.event_name }}, Working Directory: ${{ github.workspace }}, Workflow: ${{ github.workflow }}*`;
 
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: output
-            });
+          await github.rest.issues.createComment({
+            owner: context.repo.owner
