@@ -6,53 +6,38 @@ on:
       - '**.tf'
 
 jobs:
-  checkov:
+  checkov_scan:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Checkout repository
+    - name: Check out repository code
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
 
-    - name: Setup Python
+    - name: Set up Python
       uses: actions/setup-python@v2
       with:
         python-version: '3.x'
 
-    - name: Install Checkov
-      run: pip install checkov
-
-    - name: Run Checkov on changed Terraform files
-      id: checkov
+    - name: Install dependencies
       run: |
-      FILES=$(git diff --name-only --diff-filter=d 7957089d3ce271cee3363403c25e29e0e56fba33 eb0999fdfa401ffc22422a138eb51dafa4d85027 -- '*.tf' | tr '\n' ' ')
+        python -m pip install --upgrade pip
+        pip install checkov
 
-      if [ -n "$FILES" ]; then
-        checkov --directory . --output json --quiet --framework terraform > checkov_results.json
-      else
-      echo "No Terraform files changed."
-      fi
+    - name: Run Checkov scan
+      run: |
+        FILES=$(git diff --name-only --diff-filter=d ${{ github.event.before }} ${{ github.event.after }} -- '*.tf' | tr '\n' ' ')
 
-    - name: Comment on PR
-      if: steps.checkov.outputs.checkov_result != ''
-      uses: actions/github-script@v5
+        if [ -n "$FILES" ]; then
+          checkov --directory . --output json --quiet --framework terraform > checkov_results.json
+        else
+          echo "No Terraform files changed."
+        fi
+
+    - name: Upload Checkov results
+      if: always()
+      uses: actions/upload-artifact@v2
       with:
-        script: |
-          const fs = require('fs');
-          const results = JSON.parse(fs.readFileSync('checkov_results.json', 'utf8'));
-          let comment = "### Checkov Results 🛡️\n\n";
-          if (results.results.failed_checks.length > 0) {
-            comment += "| File | Checkov Error | Description |\n";
-            comment += "|------|--------------|-------------|\n";
-            for (const check of results.results.failed_checks) {
-              comment += `| ${check.file_path} | ${check.check_id} | ${check.check_name} |\n`;
-            }
-          } else {
-            comment += "🎉 Congratulations! No Checkov errors were found.\n";
-          }
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: comment
-          });
+        name: checkov-results
+        path: checkov_results.json
