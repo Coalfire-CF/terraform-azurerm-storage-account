@@ -31,57 +31,61 @@ jobs:
         echo "::set-output name=files::$(git diff --name-only --diff-filter=d origin/${{ github.base_ref }}..${{ github.head_ref }} -- '*.tf' | tr '\n' ' ')"
 
     - name: Run Checkov
-      id: checkov
-      run: |
-        IFS=$'\n' read -ra FILES <<< "$(echo ${{ steps.get_changed_files.outputs.files }} | tr ' ' '\n')"
-        RESULTS="[]"
-        PASSED=true
-        for file in "${FILES[@]}"; do
-          if [ -n "$file" ]; then
-            OUTPUT=$(checkov -f "$file" --output json || true)
-            if [ -n "$OUTPUT" ] && [[ "$(echo "$OUTPUT" | python -c "import sys, json; print('results' in json.loads(sys.stdin.read()))")" == "True" ]]; then
-              if [[ "$(echo "$OUTPUT" | jq '.results.failed_checks | length')" -gt 0 ]]; then
-                PASSED=false
-              fi
-              OUTPUT_ESCAPED=$(echo "$OUTPUT" | python -c "import sys, json; print(json.dumps(sys.stdin.read()))")
-              RESULTS=$(python -c "import json; a=json.loads('$RESULTS'); b=json.loads($OUTPUT_ESCAPED); a.extend(b['results']['failed_checks']); print(json.dumps(a))")
-            fi
-          fi
-        done
-        echo "CHECKOV_OUTPUT=$RESULTS" >> $GITHUB_ENV
-        echo "CHECKOV_PASSED=$PASSED" >> $GITHUB_ENV
-
-    - name: Create comment with Checkov results
       uses: actions/github-script@v5
-      if: ${{ env.CHECKOV_OUTPUT != '[]' }}
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
-          let output = '';
+          const {exec} = require("@actions/exec");
+          const github = require("@actions/github");
 
-          if (process.env.CHECKOV_PASSED === 'true') {
-            output = '#### Checkov Scan Results 📖: All checks passed!';
-          } else {
-            output = `#### Checkov Scan Results 📖:
-            <details>
-            <summary>Show Details</summary>
+          const files = ${{ steps.get_changed_files.outputs.files }};
+          const fileList = files.split(' ');
 
-            | Check ID | Description | File | Resource | Checkov Result |
-            | -------- | ----------- | ---- | -------- | -------------- |
-            ${JSON.parse(process.env.CHECKOV_OUTPUT)
-              .map((check) => {
-                return `| ${check.check_id} | ${check.check_name} | ${check.file_path} | ${check.resource} | ${check.check_result.result} |`;
-              })
-              .join("\n")}
+          for (const file of fileList) {
+            if (file) {
+              let output = '';
+              let checkovOutput = '';
+              let passed = true;
 
-            </details>`;
+              await exec("checkov -f " + file + " --output json", [], {
+                listeners: {
+                  stdout: (data) => {
+                    checkovOutput += data.toString();
+                  },
+                },
+              });
+
+              const checkovResults = JSON.parse(checkovOutput).results;
+
+              if (checkovResults.failed_checks.length > 0) {
+                passed = false;
+              }
+
+              if (passed) {
+                output = `#### Checkov Scan Results 📖: All checks passed for file: \`${file}\``;
+              } else {
+                output = `#### Checkov Scan Results 📖: for file: \`${file}\`
+                <details>
+                <summary>Show Details</summary>
+
+                | Check ID | Description | File | Resource | Checkov Result |
+                | -------- | ----------- | ---- | -------- | -------------- |
+                ${checkovResults.failed_checks
+                  .map((check) => {
+                    return `| ${check.check_id} | ${check.check_name} | ${check.file_path} | ${check.resource} | ${check.check_result.result} |`;
+                  })
+                  .join("\n")}
+
+                </details>`;
+              }
+
+              output += `\n\n*Pusher: @${{ github.actor }}, Action: ${{ github.event_name }}, Working Directory: ${{ github.workspace }}, Workflow: ${{ github.workflow }}*`;
+
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: output
+              });
+            }
           }
-
-          output += `\n\n*Pusher: @${{ github.actor }}, Action: ${{ github.event_name }}, Working Directory: ${{ github.workspace }}, Workflow: ${{ github.workflow }}*`;
-
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: output
-          });
