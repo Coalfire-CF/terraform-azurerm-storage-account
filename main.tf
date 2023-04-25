@@ -121,4 +121,3 @@ module "diag" {
   resource_id           = azurerm_storage_account.main.id
   resource_type         = "sa"
 }
-#te
