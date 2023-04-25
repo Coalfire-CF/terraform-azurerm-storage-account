@@ -30,7 +30,7 @@ jobs:
         FILES=$(git diff --name-only --diff-filter=d ${{ github.event.before }} ${{ github.event.after }} -- '*.tf' | tr '\n' ' ')
 
         if [ -n "$FILES" ]; then
-          checkov --directory . --output json --quiet --framework terraform --download-external-modules > checkov_results.json
+          checkov --directory . --output json --quiet --framework terraform --download-external-modules true > checkov_results.json
         else
           echo "No Terraform files changed."
         fi
