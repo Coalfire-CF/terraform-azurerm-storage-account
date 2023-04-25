@@ -115,6 +115,8 @@ resource "azurerm_advanced_threat_protection" "main" {
   enabled            = true
 }
 
+
+
 module "diag" {
   source                = "github.com/Coalfire-CF/ACE-Azure-Diagnostics?ref=v1.0.1"
   diag_log_analytics_id = var.diag_log_analytics_id
