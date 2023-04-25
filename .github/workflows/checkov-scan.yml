@@ -27,7 +27,9 @@ jobs:
       run: |
         FILES=$(git diff --name-only --diff-filter=d ${{ github.event.before }} ${{ github.event.after }} -- '*.tf' | tr '\n' ' ')
         if [ -n "$FILES" ]; then
-          checkov $FILES --output json --quiet --framework terraform > checkov_results.json
+          for file in $FILES; do
+            checkov -f $file --output json --quiet --framework terraform >> checkov_results.json
+          done
         else
           echo "No Terraform files changed."
         fi
