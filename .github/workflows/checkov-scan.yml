@@ -80,4 +80,8 @@ jobs:
           output += `\n\n*Pusher: @${{ github.actor }}, Action: ${{ github.event_name }}, Working Directory: ${{ github.workspace }}, Workflow: ${{ github.workflow }}*`;
 
           await github.rest.issues.createComment({
-            owner: context.repo.owner
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: output
+          });
