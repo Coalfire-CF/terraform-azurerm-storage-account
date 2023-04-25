@@ -37,14 +37,14 @@ jobs:
         RESULTS="[]"
         PASSED=true
         for file in "${FILES[@]}"; do
-          if [ -n "$file" ]; then
-            OUTPUT=$(checkov -f "$file" --output json || true)
-            if [ -n "$OUTPUT" ]; then
-              PASSED=false
-              OUTPUT_ESCAPED=$(echo "$OUTPUT" | python -c "import sys, json; print(json.dumps(sys.stdin.read()))")
-              RESULTS=$(python -c "import json; a=json.loads('$RESULTS'); b=json.loads($OUTPUT_ESCAPED); a.extend(b['results']['failed_checks']); print(json.dumps(a))")
-            fi
-          fi
+        if [ -n "$file" ]; then
+          OUTPUT=$(checkov -f "$file" --output json || true)
+        if [ -n "$OUTPUT" ] && [[ "$(echo "$OUTPUT" | jq '. | has(\"results\")')" == "true" ]]; then
+          PASSED=false
+          OUTPUT_ESCAPED=$(echo "$OUTPUT" | python -c "import sys, json; print(json.dumps(sys.stdin.read()))")
+          RESULTS=$(python -c "import json; a=json.loads('$RESULTS'); b=json.loads($OUTPUT_ESCAPED); a.extend(b['results']['failed_checks']); print(json.dumps(a))")
+        fi
+        fi
         done
         echo "CHECKOV_OUTPUT=$RESULTS" >> $GITHUB_ENV
         echo "CHECKOV_PASSED=$PASSED" >> $GITHUB_ENV
