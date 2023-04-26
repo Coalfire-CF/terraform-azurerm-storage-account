@@ -1,4 +1,4 @@
-# Coalfire Storage Account
+# Coalfire Azure Storage Account Module
 
 ## Description
 
@@ -59,9 +59,11 @@ This module manages an Azure storage account, lifecycle policies, containers and
 | storage_shares_ids | Map with storage share ids |
 
 ## Usage
-This module can be called as outlined below. 
+
+This module can be called as outlined below.
+
 - Create a `local` folder under `terraform/azure`.
-- Create a `main.tf` file in the `local` folder. 
+- Create a `main.tf` file in the `local` folder.
 - Copy the code below into `main.tf`.
 - From the `terraform/azure/local` directory run `terraform init`.
 - Run `terraform plan` to review the resources being created.
