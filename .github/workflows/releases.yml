@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  pull_request:
+    types:
+      - closed
+    branches:
+      - main
+
+jobs:
+  release:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Get the latest tag
+        id: latesttag
+        uses: "WyriHaximus/github-action-get-previous-tag@v1"
+
+      - name: Bump version and create release
+        id: create_release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "v${{ steps.latesttag.outputs.semver_increment_patch }}"
+          title: "Release v${{ steps.latesttag.outputs.semver_increment_patch }}"
+          body: "New release for the main branch."
+          commitish: "${{ github.sha }}"
+          draft: false
+          prerelease: false
