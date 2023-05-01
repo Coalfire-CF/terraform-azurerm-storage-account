@@ -96,7 +96,7 @@ module "core_sa" {
   storage_shares = [
     {
       name = "test"
-      quota = 50
+      quota = 500
     }
   ]
   lifecycle_policies = [
