@@ -23,7 +23,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         WITH_V: true
-        default_bump: patch
+        DEFAULT_BUMP: patch
 #      with:
 #        github_token: ${{ secrets.GITHUB_TOKEN }}
 #        default_bump: patch
