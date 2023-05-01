@@ -56,6 +56,7 @@ This module manages an Azure storage account, lifecycle policies, containers and
 | primary_connection_string | Primary SA connection string |
 | primary_access_key | The primary access key for the storage account |
 | primary_blob_endpoint | The primary blob endpoint for the storage account |
+| primary_web_endpoint | The primary web endpoint for the storage account |
 | storage_shares_ids | Map with storage share ids |
 
 ## Usage
