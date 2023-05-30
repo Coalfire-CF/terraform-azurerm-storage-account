@@ -87,7 +87,7 @@ jobs:
                   .map((check) => {
                     return `| ${check.check_id} | ${check.check_name} | ${check.resource} | ${check.check_result.result} |\n`;
                   })
-                  .join("\n")}
+                  .join("")}
                 `;
               }
       
