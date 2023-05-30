@@ -1,4 +1,4 @@
-name: Checkov PR Scan
+name: Org Checkov Scan
 
 on:
   pull_request:
