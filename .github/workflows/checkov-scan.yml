@@ -33,23 +33,24 @@ jobs:
     - name: Run Checkov
       id: checkov
       run: |
-        IFS=$'\n' read -ra FILES <<< "$(echo ${{ steps.get_changed_files.outputs.files }} | tr ' ' '\n')"
-        RESULTS="[]"
-        PASSED=true
-        for file in "${FILES[@]}"; do
-          if [ -n "$file" ]; then
-            OUTPUT=$(checkov -f "$file" --output json || true)
-            if [ -n "$OUTPUT" ] && [[ "$(echo "$OUTPUT" | python -c "import sys, json; print('results' in json.loads(sys.stdin.read()))")" == "True" ]]; then
-              if [[ "$(echo "$OUTPUT" | jq '.results.failed_checks | length')" -gt 0 ]]; then
-                PASSED=false
+          IFS=$'\n' read -ra FILES <<< "$(echo ${{ steps.get_changed_files.outputs.files }} | tr ' ' '\n')"
+          echo "[]" > results.json
+          PASSED=true
+          for file in "${FILES[@]}"; do
+            if [ -n "$file" ]; then
+              OUTPUT=$(checkov -f "$file" --output json || true)
+              if [ -n "$OUTPUT" ] && [[ "$(echo "$OUTPUT" | python -c "import sys, json; print('results' in json.loads(sys.stdin.read()))")" == "True" ]]; then
+                if [[ "$(echo "$OUTPUT" | jq '.results.failed_checks | length')" -gt 0 ]]; then
+                  PASSED=false
+                fi
+                echo "$OUTPUT" | python -c "import sys, json; a=json.load(open('results.json')); b=json.loads(sys.stdin.read()); a.extend(b['results']['failed_checks']); json.dump(a, open('results.json', 'w'))"
               fi
-              OUTPUT_ESCAPED=$(echo "$OUTPUT" | python -c "import sys, json; print(json.dumps(sys.stdin.read()))")
-              RESULTS=$(python -c "import json; a=json.loads('$RESULTS'); b=json.loads($OUTPUT_ESCAPED); a.extend(b['results']['failed_checks']); print(json.dumps(a))")
             fi
-          fi
-        done
-        echo "CHECKOV_OUTPUT=$RESULTS" >> $GITHUB_ENV
-        echo "CHECKOV_PASSED=$PASSED" >> $GITHUB_ENV
+          done
+          echo "CHECKOV_OUTPUT=$(cat results.json)" >> $GITHUB_ENV
+          echo "CHECKOV_PASSED=$PASSED" >> $GITHUB_ENV
+          rm results.json
+      
 
     - name: Create comments with Checkov results
       uses: actions/github-script@v5
