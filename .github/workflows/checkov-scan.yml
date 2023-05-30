@@ -83,13 +83,11 @@ jobs:
                      
                 | Check ID | Description | Resource | Checkov Result |
                 | -------- | ----------- | -------- | -------------- |
-                \`\`\`
                 ${fileChecks
                   .map((check) => {
-                    return `| ${check.check_id} | ${check.check_name} | ${check.resource} | ${check.check_result.result} |`;
+                    return `| ${check.check_id} | ${check.check_name} | ${check.resource} | ${check.check_result.result} |\n`;
                   })
                   .join("\n")}
-                \`\`\`
                 `;
               }
       
