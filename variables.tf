@@ -20,8 +20,8 @@ variable "location" {
 
 variable "replication_type" {
   type        = string
-  description = "Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS."
-  default     = "ZRS"
+  description = "Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS. Unless you have a specific reason for data without alternate site requirements  you should minimum use ZRS"
+  default     = "GRS" # GRS is the default to align with the Azure NIST/FedRAMP Policy
 }
 
 variable "diag_log_analytics_id" {
