@@ -95,12 +95,6 @@ variable "cross_tenant_replication_enabled" {
   default     = false
 }
 
-variable "infrastructure_encryption_enabled" {
-  type        = bool
-  description = "Whether the infrastructure encryption is enabled."
-  default     = false
-}
-
 variable "tags" {
   description = "The tags to associate with the resources."
   type        = map(string)

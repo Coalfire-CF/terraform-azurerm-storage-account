@@ -12,7 +12,7 @@ resource "azurerm_storage_account" "main" {
   nfsv3_enabled                     = var.nfsv3_enabled
   cross_tenant_replication_enabled  = var.cross_tenant_replication_enabled
   public_network_access_enabled     = var.public_network_access_enabled
-  infrastructure_encryption_enabled = var.infrastructure_encryption_enabled
+  infrastructure_encryption_enabled = true
 
   identity {
     type         = var.identity_ids != null ? "SystemAssigned, UserAssigned" : "SystemAssigned"
@@ -117,7 +117,7 @@ resource "azurerm_advanced_threat_protection" "main" {
 
 module "diag" {
   #Evaluate if we want to keep this specifically pinned to this version or reference the latest
-  source                = "github.com/Coalfire-CF/ACE-Azure-Diagnostics?ref=v1.0.1"
+  source                = "github.com/Coalfire-CF/ACE-Azure-Diagnostics"
   diag_log_analytics_id = var.diag_log_analytics_id
   resource_id           = azurerm_storage_account.main.id
   resource_type         = "sa"
