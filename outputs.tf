@@ -39,3 +39,14 @@ output "storage_shares_ids" {
   value       = { for share in azurerm_storage_share.main : share.name => share.id }
   description = "Map with storage share ids."
 }
+
+output "container_ids" {
+  description = "The IDs of the storage containers"
+  value       = { for c in azurerm_storage_container.main : c.name => c.id }
+}
+
+output "container_names" {
+  description = "The names of the storage containers"
+  value       = { for c in azurerm_storage_container.main : c.name => c.name }
+}
+
