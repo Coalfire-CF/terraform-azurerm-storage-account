@@ -2,7 +2,7 @@
 
 ## Description
 
-This module manages an Azure storage account, lifecycle policies, containers and storage shares.
+This module manages an Azure Storage Account, lifecycle policies, containers and storage shares.
 
 ## Resource List
 
