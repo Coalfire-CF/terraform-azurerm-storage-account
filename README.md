@@ -1,8 +1,17 @@
-# Coalfire Azure Storage Account Module
+<div align="center">
+<img src="coalfire_logo.png" width="200">
+
+</div>
+
+# terraform-azurerm-storage-account
 
 ## Description
 
-This module manages an Azure Storage Account, lifecycle policies, containers and storage shares.
+This module manages an Azure Storage Account, lifecycle policies, containers and storage shares. It is used in the [Coalfire-Azure-RAMPpak](https://github.com/Coalfire-CF/Coalfire-Azure-RAMPpak) FedRAMP Framework.
+
+## Dependencies
+
+- Security-Core
 
 ## Resource List
 
@@ -10,7 +19,7 @@ This module manages an Azure Storage Account, lifecycle policies, containers and
 - Containers
 - Storage share
 - Lifecycle policy
-- CMK key and Iam Role Assignment
+- CMK key and RBAC Role Assignment
 - Monitor diagnostic setting
 
 ## Usage
@@ -74,7 +83,7 @@ No requirements.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | n/a |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 3.73.0 |
 
 ## Modules
 
