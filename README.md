@@ -9,6 +9,8 @@
 
 This module manages an Azure Storage Account, lifecycle policies, containers and storage shares. It is used in the [Coalfire-Azure-RAMPpak](https://github.com/Coalfire-CF/Coalfire-Azure-RAMPpak) FedRAMP Framework.
 
+Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
+
 ## Dependencies
 
 - Security-Core
@@ -39,7 +41,7 @@ provider "azurerm" {
 }
 
 module "core_sa" {
-  source                    = "github.com/Coalfire-CF/ACE-Azure-StorageAccount?ref=vX.X.X"
+  source                    = "github.com/Coalfire-CF/terraform-azurerm-storage-account?ref=v1.2.11"
   name                       = "${replace(var.resource_prefix, "-", "")}tfstatesa"
   resource_group_name        = azurerm_resource_group.management.name
   location                   = var.location
