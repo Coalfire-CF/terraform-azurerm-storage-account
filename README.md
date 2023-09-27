@@ -154,3 +154,19 @@ No requirements.
 | <a name="output_primary_web_endpoint"></a> [primary\_web\_endpoint](#output\_primary\_web\_endpoint) | The primary web endpoint for the storage account. |
 | <a name="output_storage_shares_ids"></a> [storage\_shares\_ids](#output\_storage\_shares\_ids) | Map with storage share ids. |
 <!-- END_TF_DOCS -->
+
+## Contributing
+
+[Start Here](CONTRIBUTING.md)
+
+## License
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://opensource.org/license/mit/)
+
+## Contact Us
+
+[Coalfire](https://coalfire.com/)
+
+### Copyright
+
+Copyright © 2023 Coalfire Systems Inc.
