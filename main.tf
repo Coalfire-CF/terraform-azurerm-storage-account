@@ -4,7 +4,7 @@ resource "azurerm_storage_account" "main" {
   location                          = var.location
   account_tier                      = var.account_tier
   account_replication_type          = var.replication_type
-  enable_https_traffic_only         = true
+  https_traffic_only_enabled        = true
   min_tls_version                   = "TLS1_2"
   allow_nested_items_to_be_public   = false
   account_kind                      = var.account_kind
