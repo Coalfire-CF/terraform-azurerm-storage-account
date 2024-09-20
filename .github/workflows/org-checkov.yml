@@ -1,11 +1,12 @@
-name: Markdown Lint
+name: Org Checkov
 on:
-    pull_request:
-      paths:
-        - '**.tf'
-      branches:
-        - main
-    workflow_call:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - '**'
+  workflow_call:
 
 jobs:
   check-markdown:
