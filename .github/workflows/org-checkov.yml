@@ -9,5 +9,5 @@ on:
   workflow_call:
 
 jobs:
-  check-markdown:
+  Checkov_Scan:
     uses: Coalfire-CF/Actions/.github/workflows/org-checkov.yml@main
