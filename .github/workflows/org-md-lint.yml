@@ -8,5 +8,5 @@ on:
     workflow_call:
 
 jobs:
-  check-markdown:
+  Markdonw_Lint:
     uses: Coalfire-CF/Actions/.github/workflows/org-markdown-lint.yml@main

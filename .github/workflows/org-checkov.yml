@@ -1,13 +1,9 @@
 name: Org Checkov
 on:
-  push:
-    branches:
-      - '**'
   pull_request:
     branches:
       - '**'
-  workflow_call:
 
 jobs:
-  check-markdown:
+  Checkov_Scan:
     uses: Coalfire-CF/Actions/.github/workflows/org-checkov.yml@main
