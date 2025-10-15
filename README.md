@@ -91,7 +91,7 @@ No requirements.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_diag"></a> [diag](#module\_diag) | git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics | v1.1.0 |
-| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault/modules/kv_key | v1.1.1 |
+| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | v1.1.1 |
 
 ## Resources
 
@@ -110,7 +110,7 @@ No requirements.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_account_kind"></a> [account\_kind](#input\_account\_kind) | Account Kind for the Storage Account | `string` | `"Storagev2"` | no |
+| <a name="input_account_kind"></a> [account\_kind](#input\_account\_kind) | Account Kind for the Storage Account | `string` | `"StorageV2"` | no |
 | <a name="input_account_tier"></a> [account\_tier](#input\_account\_tier) | Defines the Tier to use for this storage account. Valid options are Standard and Premium. | `string` | `"Standard"` | no |
 | <a name="input_cmk_key_name"></a> [cmk\_key\_name](#input\_cmk\_key\_name) | Name of an existing Key Vault key to use for customer-managed encryption. If null, a new key will be created when enable\_customer\_managed\_key is true. | `string` | `null` | no |
 | <a name="input_cmk_key_size"></a> [cmk\_key\_size](#input\_cmk\_key\_size) | The size of the RSA key for CMK | `number` | `4096` | no |
