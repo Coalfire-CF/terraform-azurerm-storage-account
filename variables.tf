@@ -120,7 +120,7 @@ variable "network_rules_bypass" {
 variable "public_network_access_enabled" {
   type        = bool
   description = "Whether the public network access is enabled."
-  default     = false
+  default     = true
 }
 
 variable "infrastructure_encryption_enabled" {
