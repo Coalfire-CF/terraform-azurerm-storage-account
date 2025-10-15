@@ -59,32 +59,42 @@ resource "azurerm_role_assignment" "sa_crypto_user" {
   principal_id         = azurerm_storage_account.main.identity.0.principal_id
 }
 
-resource "azurerm_key_vault_key" "cmk" {
-  count        = var.enable_customer_managed_key ? 1 : 0
-  name         = "${azurerm_storage_account.main.name}-cmk"
-  key_vault_id = var.cmk_key_vault_id
-  key_type     = "RSA"
-  key_size     = 4096
+# Create a new CMK key only if not provided
+module "storage_cmk" {
+  count  = var.enable_customer_managed_key && var.cmk_key_name == null ? 1 : 0
+  source = "github.com/Coalfire-CF/terraform-azurerm-key-vault/modules/kv_key?ref=v1.1.1"
 
-  key_opts = [
-    "decrypt",
-    "encrypt",
-    "sign",
-    "unwrapKey",
-    "verify",
-    "wrapKey",
-  ]
+  name         = "${azurerm_storage_account.main.name}-cmk"
+  key_type     = var.cmk_key_type
+  key_vault_id = var.cmk_key_vault_id
+  key_size     = var.cmk_key_size
+
+  # Custom rotation policy
+  rotation_policy_enabled     = var.cmk_rotation_policy_enabled
+  rotation_expire_after       = var.cmk_rotation_expire_after
+  rotation_time_before_expiry = var.cmk_rotation_time_before_expiry
+
+  tags = var.tags
+
+  depends_on = [azurerm_role_assignment.sa_crypto_user]
+}
+
+# Use provided CMK key name or the newly created one
+locals {
+  cmk_key_name = var.enable_customer_managed_key ? (
+    var.cmk_key_name != null ? var.cmk_key_name : module.storage_cmk[0].key_name
+  ) : null
 }
 
 resource "azurerm_storage_account_customer_managed_key" "main" {
   count              = var.enable_customer_managed_key ? 1 : 0
   storage_account_id = azurerm_storage_account.main.id
   key_vault_id       = var.cmk_key_vault_id
-  key_name           = azurerm_key_vault_key.cmk.0.name
+  key_name           = local.cmk_key_name
 
   depends_on = [
     azurerm_role_assignment.sa_crypto_user,
-    azurerm_key_vault_key.cmk
+    module.storage_cmk
   ]
 }
 

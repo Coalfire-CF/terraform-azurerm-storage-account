@@ -186,3 +186,52 @@ variable "private_dns_zone_id" {
   description = "The ID of the private DNS zone to link to the private endpoint if applicable."
   default     = null
 }
+
+### KV CMK KEY VARIABLES ###
+variable "cmk_key_name" {
+  description = "Name of an existing Key Vault key to use for customer-managed encryption. If null, a new key will be created when enable_customer_managed_key is true."
+  type        = string
+  default     = null
+}
+
+variable "enable_customer_managed_key" {
+  description = "Enable customer-managed key encryption for the storage account"
+  type        = bool
+  default     = true
+}
+
+variable "cmk_key_vault_id" {
+  description = "The ID of the Key Vault where the CMK key is or will be stored"
+  type        = string
+  default     = null
+}
+
+variable "cmk_key_type" {
+  description = "The type of key to create for CMK. Use 'RSA-HSM' for FedRAMP High or 'RSA' for standard"
+  type        = string
+  default     = "RSA"
+}
+
+variable "cmk_key_size" {
+  description = "The size of the RSA key for CMK"
+  type        = number
+  default     = 4096
+}
+
+variable "cmk_rotation_policy_enabled" {
+  description = "Enable automatic rotation policy for the CMK key"
+  type        = bool
+  default     = true
+}
+
+variable "cmk_rotation_expire_after" {
+  description = "Duration after which the key will expire (ISO 8601 format, e.g., P180D for 180 days)"
+  type        = string
+  default     = "P180D"
+}
+
+variable "cmk_rotation_time_before_expiry" {
+  description = "Time before expiry when rotation should occur (ISO 8601 format, e.g., P30D for 30 days)"
+  type        = string
+  default     = "P30D"
+}
