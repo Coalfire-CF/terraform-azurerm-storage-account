@@ -18,7 +18,7 @@ Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
 - Containers
 - Storage share
 - Lifecycle policy
-- CMK key and RBAC Role Assignment
+- CMK key and RBAC Role Assignment (CMK Key can either be inputted into module or created dynamically with the Storage Account)
 - Monitor diagnostic setting
 
 ## Usage
@@ -52,7 +52,7 @@ module "core_sa" {
   public_network_access_enabled = true
   enable_customer_managed_key   = true
   cmk_key_vault_id              = module.core_kv.id
-  cmk_key_vault_key_name        = azurerm_key_vault_key.tfstate-cmk.name
+  cmk_key_name                  = azurerm_key_vault_key.tfstate_cmk.name #Define if you want to have already created CMK set for the Storage Account
   storage_containers = [
     "tfstate"
   ]
