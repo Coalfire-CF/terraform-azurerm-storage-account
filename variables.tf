@@ -121,18 +121,6 @@ variable "storage_shares" {
   default     = []
 }
 
-variable "enable_customer_managed_key" {
-  type        = bool
-  description = "Whether the storage account should be encrypted with customer managed keys."
-  default     = false
-}
-
-variable "cmk_key_vault_id" {
-  type        = string
-  description = "The ID of the Key Vault for Customer Managed Key encryption."
-  default     = null
-}
-
 variable "enable_advanced_threat_protection" {
   type        = bool
   description = "Whether advanced threat protection is enabled."
