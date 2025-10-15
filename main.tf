@@ -14,9 +14,13 @@ resource "azurerm_storage_account" "main" {
   public_network_access_enabled     = var.public_network_access_enabled
   infrastructure_encryption_enabled = true
 
-  identity {
-    type         = var.identity_ids != null && length(var.identity_ids) > 0 ? "SystemAssigned, UserAssigned" : "SystemAssigned"
-    identity_ids = var.identity_ids != null && length(var.identity_ids) > 0 ? var.identity_ids : null
+  dynamic "identity" {
+    for_each = var.identity_ids != null && length(var.identity_ids) > 0 ? [1] : []
+    
+    content {
+      type         = "SystemAssigned, UserAssigned"
+      identity_ids = var.identity_ids
+    }
   }
 
   lifecycle {
@@ -63,7 +67,7 @@ resource "azurerm_role_assignment" "sa_crypto_user" {
 module "storage_cmk" {
   count  = var.enable_customer_managed_key && var.cmk_key_name == null ? 1 : 0
   source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key?ref=v1.1.1"
-
+  
   name         = "${azurerm_storage_account.main.name}-cmk"
   key_type     = var.cmk_key_type
   key_vault_id = var.cmk_key_vault_id
