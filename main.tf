@@ -15,8 +15,8 @@ resource "azurerm_storage_account" "main" {
   infrastructure_encryption_enabled = true
 
   identity {
-    type         = var.identity_ids != null ? "SystemAssigned, UserAssigned" : "SystemAssigned"
-    identity_ids = var.identity_ids
+    type         = var.identity_ids != null && length(var.identity_ids) > 0 ? "SystemAssigned, UserAssigned" : "SystemAssigned"
+    identity_ids = var.identity_ids != null && length(var.identity_ids) > 0 ? var.identity_ids : null
   }
 
   lifecycle {
@@ -62,7 +62,7 @@ resource "azurerm_role_assignment" "sa_crypto_user" {
 # Create a new CMK key only if not provided
 module "storage_cmk" {
   count  = var.enable_customer_managed_key && var.cmk_key_name == null ? 1 : 0
-  source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault/modules/kv_key?ref=v1.1.1"
+  source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key?ref=v1.1.1"
 
   name         = "${azurerm_storage_account.main.name}-cmk"
   key_type     = var.cmk_key_type

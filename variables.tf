@@ -3,8 +3,8 @@ variable "name" {
   description = "The storage account name"
 
   validation {
-    condition     = can(regex("^[a-zA-Z0-9]{3,24}$", var.name))
-    error_message = "Name may only contain alphanumeric characters and must be between 3-24 chars."
+    condition = can(regex("^[a-z0-9]{3,24}$", var.name))
+    error_message = "Name may only contain lowercase letters and numbers and must be between 3-24 chars."
   }
 }
 
@@ -32,7 +32,7 @@ variable "diag_log_analytics_id" {
 variable "account_kind" {
   type        = string
   description = "Account Kind for the Storage Account"
-  default     = "Storagev2"
+  default     = "StorageV2"
 }
 
 variable "account_tier" {
