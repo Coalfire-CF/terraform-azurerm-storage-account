@@ -3,8 +3,8 @@ variable "name" {
   description = "The storage account name"
 
   validation {
-    condition     = can(regex("^[a-zA-Z0-9]{3,24}$", var.name))
-    error_message = "Name may only contain alphanumeric characters and must be between 3-24 chars."
+    condition     = can(regex("^[a-z0-9]{3,24}$", var.name))
+    error_message = "Name may only contain lowercase letters and numbers and must be between 3-24 chars."
   }
 }
 
@@ -32,7 +32,17 @@ variable "diag_log_analytics_id" {
 variable "account_kind" {
   type        = string
   description = "Account Kind for the Storage Account"
-  default     = "Storagev2"
+  default     = "StorageV2"
+}
+
+variable "access_tier" {
+  type        = string
+  default     = "Hot"
+  description = "Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot, Cool, Cold and Premium."
+  validation {
+    condition     = contains(["Hot", "Cool", "Cold", "Premium"], var.access_tier)
+    error_message = "access_tier must be one of: 'Hot', 'Cool', 'Cold', or 'Premium'."
+  }
 }
 
 variable "account_tier" {
@@ -53,6 +63,12 @@ variable "virtual_network_subnet_ids" {
   default     = null
 }
 
+variable "default_action" {
+  type        = string
+  description = "The default action for network rules. Valid options are 'Allow' or 'Deny'."
+  default     = "Deny"
+}
+
 variable "ip_rules" {
   type        = list(string)
   description = "List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges are not allowed."
@@ -63,6 +79,24 @@ variable "private_link_access" {
   type        = list(string)
   description = "List of the resource ids of the endpoint resource to be granted access."
   default     = []
+}
+
+variable "https_traffic_only_enabled" {
+  type        = bool
+  description = "Is HTTPS traffic only enabled?"
+  default     = true
+}
+
+variable "min_tls_version" {
+  type        = string
+  description = "The minimum TLS version to be permitted on requests to storage. Possible values include: 'TLS1_0', 'TLS1_1', 'TLS1_2'."
+  default     = "TLS1_2"
+}
+
+variable "allow_nested_items_to_be_public" {
+  type        = bool
+  description = "Allow nested items within the storage account to be public."
+  default     = false
 }
 
 variable "is_hns_enabled" {
@@ -80,13 +114,19 @@ variable "nfsv3_enabled" {
 variable "network_rules_bypass" {
   type        = list(string)
   description = "Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None."
-  default     = null
+  default     = ["AzureServices", "Logging", "Metrics"]
 }
 
 variable "public_network_access_enabled" {
   type        = bool
   description = "Whether the public network access is enabled."
-  default     = false
+  default     = true
+}
+
+variable "infrastructure_encryption_enabled" {
+  type        = bool
+  description = "Is infrastructure encryption enabled? This provides a second layer of encryption at rest for data in the storage account."
+  default     = true
 }
 
 variable "cross_tenant_replication_enabled" {
@@ -100,10 +140,16 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "enable_system_assigned_identity" {
+  type        = bool
+  default     = true
+  description = "Enable system-assigned managed identity"
+}
+
 variable "identity_ids" {
   type        = list(string)
-  description = "Specifies a list of User Assigned Managed Identity IDs to be assigned to this Storage Account."
   default     = null
+  description = "List of user-assigned managed identity IDs"
 }
 
 variable "storage_containers" {
@@ -119,18 +165,6 @@ variable "storage_shares" {
   }))
   description = "List of storage shares to create and their quotas."
   default     = []
-}
-
-variable "enable_customer_managed_key" {
-  type        = bool
-  description = "Whether the storage account should be encrypted with customer managed keys."
-  default     = false
-}
-
-variable "cmk_key_vault_id" {
-  type        = string
-  description = "The ID of the Key Vault for Customer Managed Key encryption."
-  default     = null
 }
 
 variable "enable_advanced_threat_protection" {
@@ -185,4 +219,94 @@ variable "private_dns_zone_id" {
   type        = string
   description = "The ID of the private DNS zone to link to the private endpoint if applicable."
   default     = null
+}
+
+### KV CMK KEY VARIABLES ###
+variable "cmk_key_name" {
+  description = "Name of an existing Key Vault key to use for customer-managed encryption. If null, a new key will be created when enable_customer_managed_key is true."
+  type        = string
+  default     = null
+}
+
+variable "enable_customer_managed_key" {
+  description = "Enable customer-managed key encryption for the storage account"
+  type        = bool
+  default     = true
+}
+
+variable "cmk_key_vault_id" {
+  description = "The ID of the Key Vault where the CMK key is or will be stored"
+  type        = string
+  default     = null
+}
+
+variable "cmk_key_type" {
+  description = "The type of key to create for CMK. Use 'RSA-HSM' for FedRAMP High or 'RSA' for standard"
+  type        = string
+  default     = "RSA"
+}
+
+variable "cmk_key_size" {
+  description = "The size of the RSA key for CMK"
+  type        = number
+  default     = 4096
+}
+
+variable "cmk_rotation_policy_enabled" {
+  description = "Enable automatic rotation policy for the CMK key"
+  type        = bool
+  default     = true
+}
+
+variable "cmk_rotation_expire_after" {
+  description = "Duration after which the key will expire (ISO 8601 format, e.g., P180D for 180 days)"
+  type        = string
+  default     = "P180D"
+}
+
+variable "cmk_rotation_time_before_expiry" {
+  description = "Time before expiry when rotation should occur (ISO 8601 format, e.g., P30D for 30 days)"
+  type        = string
+  default     = "P30D"
+}
+
+## Blob Service Properties Variable ##
+variable "blob_properties" {
+  type = object({
+    change_feed_enabled           = optional(bool, false)
+    change_feed_retention_in_days = optional(number, null)
+    default_service_version       = optional(string, null)
+    last_access_time_enabled      = optional(bool, false)
+    versioning_enabled            = optional(bool, false)
+    container_delete_retention_policy = optional(object({
+      days = number
+    }), null)
+    cors_rule = optional(list(object({
+      allowed_headers    = list(string)
+      allowed_methods    = list(string)
+      allowed_origins    = list(string)
+      exposed_headers    = list(string)
+      max_age_in_seconds = number
+    })), null)
+    delete_retention_policy = optional(object({
+      days = number
+    }), null)
+    restore_policy = optional(object({
+      days = number
+    }), null)
+  })
+  default     = null
+  description = <<-DESCRIPTION
+    Blob service properties for advanced features including versioning, soft delete, and CORS configuration.
+    
+    - change_feed_enabled: Enable change feed for the blob service
+    - change_feed_retention_in_days: Retention period in days for change feed (1-146000)
+    - default_service_version: Default API version for blob service requests
+    - last_access_time_enabled: Enable last access time tracking for lifecycle management
+    - versioning_enabled: Enable blob versioning
+    - container_delete_retention_policy: Soft delete retention for deleted containers
+    - cors_rule: CORS rules for blob service
+    - delete_retention_policy: Soft delete retention for deleted blobs (1-365 days)
+    - restore_policy: Point-in-time restore configuration (requires versioning and delete retention)
+  DESCRIPTION
 }
