@@ -100,10 +100,16 @@ variable "tags" {
   type        = map(string)
 }
 
+variable "enable_system_assigned_identity" {
+  type        = bool
+  default     = true
+  description = "Enable system-assigned managed identity"
+}
+
 variable "identity_ids" {
   type        = list(string)
-  description = "Specifies a list of User Assigned Managed Identity IDs to be assigned to this Storage Account."
   default     = null
+  description = "List of user-assigned managed identity IDs"
 }
 
 variable "storage_containers" {

@@ -15,11 +15,13 @@ resource "azurerm_storage_account" "main" {
   infrastructure_encryption_enabled = true
 
   dynamic "identity" {
-    for_each = try(length(var.identity_ids), 0) > 0 ? [1] : []
+    for_each = var.enable_system_assigned_identity || try(length(var.identity_ids), 0) > 0 ? [1] : []
     
     content {
-      type         = "SystemAssigned, UserAssigned"
-      identity_ids = var.identity_ids
+      type = var.enable_system_assigned_identity && try(length(var.identity_ids), 0) > 0 ? "SystemAssigned, UserAssigned" : (
+        try(length(var.identity_ids), 0) > 0 ? "UserAssigned" : "SystemAssigned"
+      )
+      identity_ids = try(length(var.identity_ids), 0) > 0 ? var.identity_ids : null
     }
   }
 
