@@ -3,7 +3,7 @@ variable "name" {
   description = "The storage account name"
 
   validation {
-    condition = can(regex("^[a-z0-9]{3,24}$", var.name))
+    condition     = can(regex("^[a-z0-9]{3,24}$", var.name))
     error_message = "Name may only contain lowercase letters and numbers and must be between 3-24 chars."
   }
 }
@@ -35,6 +35,16 @@ variable "account_kind" {
   default     = "StorageV2"
 }
 
+variable "access_tier" {
+  type        = string
+  default     = "Hot"
+  description = "Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot, Cool, Cold and Premium."
+  validation {
+    condition     = contains(["Hot", "Cool", "Cold", "Premium"], var.access_tier)
+    error_message = "access_tier must be one of: 'Hot', 'Cool', 'Cold', or 'Premium'."
+  }
+}
+
 variable "account_tier" {
   type        = string
   description = "Defines the Tier to use for this storage account. Valid options are Standard and Premium."
@@ -53,6 +63,12 @@ variable "virtual_network_subnet_ids" {
   default     = null
 }
 
+variable "default_action" {
+  type        = string
+  description = "The default action for network rules. Valid options are 'Allow' or 'Deny'."
+  default     = "Deny"
+}
+
 variable "ip_rules" {
   type        = list(string)
   description = "List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges are not allowed."
@@ -63,6 +79,24 @@ variable "private_link_access" {
   type        = list(string)
   description = "List of the resource ids of the endpoint resource to be granted access."
   default     = []
+}
+
+variable "https_traffic_only_enabled" {
+  type        = bool
+  description = "Is HTTPS traffic only enabled?"
+  default     = true
+}
+
+variable "min_tls_version" {
+  type        = string
+  description = "The minimum TLS version to be permitted on requests to storage. Possible values include: 'TLS1_0', 'TLS1_1', 'TLS1_2'."
+  default     = "TLS1_2"
+}
+
+variable "allow_nested_items_to_be_public" {
+  type        = bool
+  description = "Allow nested items within the storage account to be public."
+  default     = false
 }
 
 variable "is_hns_enabled" {
@@ -80,13 +114,19 @@ variable "nfsv3_enabled" {
 variable "network_rules_bypass" {
   type        = list(string)
   description = "Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None."
-  default     = null
+  default     = ["AzureServices", "Logging", "Metrics"]
 }
 
 variable "public_network_access_enabled" {
   type        = bool
   description = "Whether the public network access is enabled."
   default     = false
+}
+
+variable "infrastructure_encryption_enabled" {
+  type        = bool
+  description = "Is infrastructure encryption enabled? This provides a second layer of encryption at rest for data in the storage account."
+  default     = true
 }
 
 variable "cross_tenant_replication_enabled" {
@@ -228,4 +268,44 @@ variable "cmk_rotation_time_before_expiry" {
   description = "Time before expiry when rotation should occur (ISO 8601 format, e.g., P30D for 30 days)"
   type        = string
   default     = "P30D"
+}
+
+variable "blob_properties" {
+  type = object({
+    change_feed_enabled           = optional(bool, false)
+    change_feed_retention_in_days = optional(number, null)
+    default_service_version       = optional(string, null)
+    last_access_time_enabled      = optional(bool, false)
+    versioning_enabled            = optional(bool, false)
+    container_delete_retention_policy = optional(object({
+      days = number
+    }), null)
+    cors_rule = optional(list(object({
+      allowed_headers    = list(string)
+      allowed_methods    = list(string)
+      allowed_origins    = list(string)
+      exposed_headers    = list(string)
+      max_age_in_seconds = number
+    })), null)
+    delete_retention_policy = optional(object({
+      days = number
+    }), null)
+    restore_policy = optional(object({
+      days = number
+    }), null)
+  })
+  default     = null
+  description = <<-DESCRIPTION
+    Blob service properties for advanced features including versioning, soft delete, and CORS configuration.
+    
+    - change_feed_enabled: Enable change feed for the blob service
+    - change_feed_retention_in_days: Retention period in days for change feed (1-146000)
+    - default_service_version: Default API version for blob service requests
+    - last_access_time_enabled: Enable last access time tracking for lifecycle management
+    - versioning_enabled: Enable blob versioning
+    - container_delete_retention_policy: Soft delete retention for deleted containers
+    - cors_rule: CORS rules for blob service
+    - delete_retention_policy: Soft delete retention for deleted blobs (1-365 days)
+    - restore_policy: Point-in-time restore configuration (requires versioning and delete retention)
+  DESCRIPTION
 }
