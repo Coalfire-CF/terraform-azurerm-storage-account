@@ -270,6 +270,7 @@ variable "cmk_rotation_time_before_expiry" {
   default     = "P30D"
 }
 
+## Blob Service Properties Variable ##
 variable "blob_properties" {
   type = object({
     change_feed_enabled           = optional(bool, false)

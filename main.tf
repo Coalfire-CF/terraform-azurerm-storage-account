@@ -26,26 +26,6 @@ resource "azurerm_storage_account" "main" {
     }
   }
 
-  # dynamic "network_rules" {
-  #   for_each = var.network_rules == null ? [] : [var.network_rules]
-
-  #   content {
-  #     default_action             = network_rules.value.default_action
-  #     bypass                     = try(network_rules.value.bypass, null)
-  #     ip_rules                   = try(network_rules.value.ip_rules, null)
-  #     virtual_network_subnet_ids = try(network_rules.value.virtual_network_subnet_ids, null)
-
-  #     dynamic "private_link_access" {
-  #       for_each = try(network_rules.value.private_link_access, null) == null ? [] : network_rules.value.private_link_access
-
-  #       content {
-  #         endpoint_resource_id = private_link_access.value.endpoint_resource_id
-  #         endpoint_tenant_id   = try(private_link_access.value.endpoint_tenant_id, null)
-  #       }
-  #     }
-  #   }
-  # }
-
   dynamic "network_rules" {
     for_each = var.public_network_access_enabled && (var.virtual_network_subnet_ids != null || var.ip_rules != null) ? [1] : []
     
@@ -214,7 +194,6 @@ resource "azurerm_advanced_threat_protection" "main" {
 }
 
 module "diag" {
-  #Evaluate if we want to keep this specifically pinned to this version or reference the latest
   source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics?ref=v1.1.0"
   diag_log_analytics_id = var.diag_log_analytics_id
   resource_id           = azurerm_storage_account.main.id
