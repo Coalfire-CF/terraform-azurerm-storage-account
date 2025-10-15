@@ -91,13 +91,13 @@ No requirements.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_diag"></a> [diag](#module\_diag) | git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics | n/a |
+| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault/modules/kv_key | v1.1.1 |
 
 ## Resources
 
 | Name | Type |
 |------|------|
 | [azurerm_advanced_threat_protection.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/advanced_threat_protection) | resource |
-| [azurerm_key_vault_key.cmk](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/key_vault_key) | resource |
 | [azurerm_private_endpoint.sa](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/private_endpoint) | resource |
 | [azurerm_role_assignment.sa_crypto_user](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/role_assignment) | resource |
 | [azurerm_storage_account.main](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/storage_account) | resource |
@@ -112,11 +112,17 @@ No requirements.
 |------|-------------|------|---------|:--------:|
 | <a name="input_account_kind"></a> [account\_kind](#input\_account\_kind) | Account Kind for the Storage Account | `string` | `"Storagev2"` | no |
 | <a name="input_account_tier"></a> [account\_tier](#input\_account\_tier) | Defines the Tier to use for this storage account. Valid options are Standard and Premium. | `string` | `"Standard"` | no |
-| <a name="input_cmk_key_vault_id"></a> [cmk\_key\_vault\_id](#input\_cmk\_key\_vault\_id) | The ID of the Key Vault for Customer Managed Key encryption. | `string` | `null` | no |
+| <a name="input_cmk_key_name"></a> [cmk\_key\_name](#input\_cmk\_key\_name) | Name of an existing Key Vault key to use for customer-managed encryption. If null, a new key will be created when enable\_customer\_managed\_key is true. | `string` | `null` | no |
+| <a name="input_cmk_key_size"></a> [cmk\_key\_size](#input\_cmk\_key\_size) | The size of the RSA key for CMK | `number` | `4096` | no |
+| <a name="input_cmk_key_type"></a> [cmk\_key\_type](#input\_cmk\_key\_type) | The type of key to create for CMK. Use 'RSA-HSM' for FedRAMP High or 'RSA' for standard | `string` | `"RSA"` | no |
+| <a name="input_cmk_key_vault_id"></a> [cmk\_key\_vault\_id](#input\_cmk\_key\_vault\_id) | The ID of the Key Vault where the CMK key is or will be stored | `string` | `null` | no |
+| <a name="input_cmk_rotation_expire_after"></a> [cmk\_rotation\_expire\_after](#input\_cmk\_rotation\_expire\_after) | Duration after which the key will expire (ISO 8601 format, e.g., P180D for 180 days) | `string` | `"P180D"` | no |
+| <a name="input_cmk_rotation_policy_enabled"></a> [cmk\_rotation\_policy\_enabled](#input\_cmk\_rotation\_policy\_enabled) | Enable automatic rotation policy for the CMK key | `bool` | `true` | no |
+| <a name="input_cmk_rotation_time_before_expiry"></a> [cmk\_rotation\_time\_before\_expiry](#input\_cmk\_rotation\_time\_before\_expiry) | Time before expiry when rotation should occur (ISO 8601 format, e.g., P30D for 30 days) | `string` | `"P30D"` | no |
 | <a name="input_cross_tenant_replication_enabled"></a> [cross\_tenant\_replication\_enabled](#input\_cross\_tenant\_replication\_enabled) | Should cross Tenant replication be enabled? Source storage account is in one AAD tenant, and the destination account is in a different tenant. | `bool` | `false` | no |
 | <a name="input_diag_log_analytics_id"></a> [diag\_log\_analytics\_id](#input\_diag\_log\_analytics\_id) | ID of the Log Analytics workspace diag settings should be stored in. | `string` | n/a | yes |
 | <a name="input_enable_advanced_threat_protection"></a> [enable\_advanced\_threat\_protection](#input\_enable\_advanced\_threat\_protection) | Whether advanced threat protection is enabled. | `bool` | `false` | no |
-| <a name="input_enable_customer_managed_key"></a> [enable\_customer\_managed\_key](#input\_enable\_customer\_managed\_key) | Whether the storage account should be encrypted with customer managed keys. | `bool` | `false` | no |
+| <a name="input_enable_customer_managed_key"></a> [enable\_customer\_managed\_key](#input\_enable\_customer\_managed\_key) | Enable customer-managed key encryption for the storage account | `bool` | `true` | no |
 | <a name="input_endpoint_subnet_id"></a> [endpoint\_subnet\_id](#input\_endpoint\_subnet\_id) | The ID of the Subnet from which Private IP Addresses will be allocated for this Private Endpoint. | `string` | `null` | no |
 | <a name="input_identity_ids"></a> [identity\_ids](#input\_identity\_ids) | Specifies a list of User Assigned Managed Identity IDs to be assigned to this Storage Account. | `list(string)` | `null` | no |
 | <a name="input_ip_rules"></a> [ip\_rules](#input\_ip\_rules) | List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges are not allowed. | `list(string)` | `null` | no |
