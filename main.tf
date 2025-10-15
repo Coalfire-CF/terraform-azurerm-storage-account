@@ -15,7 +15,7 @@ resource "azurerm_storage_account" "main" {
   infrastructure_encryption_enabled = true
 
   dynamic "identity" {
-    for_each = var.identity_ids != null && length(var.identity_ids) > 0 ? [1] : []
+    for_each = try(length(var.identity_ids), 0) > 0 ? [1] : []
     
     content {
       type         = "SystemAssigned, UserAssigned"
