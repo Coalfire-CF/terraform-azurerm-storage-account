@@ -26,12 +26,6 @@ resource "azurerm_storage_account" "main" {
     }
   }
 
-  lifecycle {
-    ignore_changes = [
-      customer_managed_key, # required by https://github.com/hashicorp/terraform-provider-azurerm/issues/16085
-    ]
-  }
-
   # dynamic "network_rules" {
   #   for_each = var.network_rules == null ? [] : [var.network_rules]
 
@@ -134,15 +128,16 @@ resource "azurerm_storage_account" "main" {
     }
   }
 
+  tags = var.tags
+
   lifecycle {
     ignore_changes = [
-      customer_managed_key,
+      customer_managed_key, # required by https://github.com/hashicorp/terraform-provider-azurerm/issues/16085
       queue_properties,
       static_website
     ]
   }
 
-  tags = var.tags
 }
 
 resource "azurerm_role_assignment" "sa_crypto_user" {
