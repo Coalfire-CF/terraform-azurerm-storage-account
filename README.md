@@ -23,6 +23,8 @@ Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
 
 ## Usage
 
+Please review the variables.tf to review the default CMK key created as it can be changed to fit different compliance of environments. Additionally, do not set variable 'cmk_key_name' if you want a CMK to be dynamically created for the Storage Account.
+
 This module can be called as outlined below.
 
 - Create a `local` folder under `terraform/azure`.
