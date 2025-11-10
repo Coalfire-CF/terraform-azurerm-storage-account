@@ -91,7 +91,7 @@ No requirements.
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_diag"></a> [diag](#module\_diag) | git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics | v1.1.0 |
-| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | v1.1.1 |
+| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | v1.1.2 |
 
 ## Resources
 
