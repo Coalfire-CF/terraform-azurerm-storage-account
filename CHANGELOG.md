@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.0...v1.1.1) (2025-11-12)
+
+
+### Miscellaneous
+
+* **deps:** bump diag::terraform-azurerm-diagnostics ([51eb21c](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/51eb21cac5c52e567c39043e50b8beb123f92c7f))
+* **deps:** bump diag::terraform-azurerm-diagnostics from 1.1.0 to 1.1.4 ([6edc923](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/6edc9233d3dce47ebddc3869141429ba4a30f225))
+
 ## [1.1.0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.0.2...v1.1.0) (2025-10-15)
 
 
