@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.1.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.0...v1.1.1) (2025-11-19)
+
+
+### Miscellaneous
+
+* **deps:** bump diag::terraform-azurerm-diagnostics ([51eb21c](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/51eb21cac5c52e567c39043e50b8beb123f92c7f))
+* **deps:** bump diag::terraform-azurerm-diagnostics from 1.1.0 to 1.1.4 ([6edc923](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/6edc9233d3dce47ebddc3869141429ba4a30f225))
+* remove obsolete update-readme-tree.sh script ([7d73566](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/7d73566d4da9927558f9d8cbe916d30efd8e84bf))
+* remove obsolete update-readme-tree.sh script ([9f2dc3f](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/9f2dc3f29272aa22161b7e366bbb78866e2a9e9e))
+* remove old LICENSE file ([710a848](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/710a848d8d8e3422160a42ee50db61816229969c))
+* remove old LICENSE file ([784fd17](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/784fd17052971ffd08fad8dc3a920c5b38d8abae))
+* update README tree ([3123b2e](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/3123b2ed76b46d402ab70854cc8073946eaafc16))
+* update README tree ([d8711de](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/d8711de02dc585f3d4b52f9631cc994bccec76b0))
+
 ## [1.1.0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.0.2...v1.1.0) (2025-10-15)
 
 
