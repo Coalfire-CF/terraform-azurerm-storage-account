@@ -199,4 +199,5 @@ Copyright © 2023 Coalfire Systems Inc.
 |-- outputs.tf
 |-- release-please-config.json
 |-- variables.tf
+|-- versions.tf
 ```
