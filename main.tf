@@ -194,7 +194,7 @@ resource "azurerm_advanced_threat_protection" "main" {
 }
 
 module "diag" {
-  source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics?ref=v1.1.0"
+  source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics?ref=v1.1.4"
   diag_log_analytics_id = var.diag_log_analytics_id
   resource_id           = azurerm_storage_account.main.id
   resource_type         = "sa"
