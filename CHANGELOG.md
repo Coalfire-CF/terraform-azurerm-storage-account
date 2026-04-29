@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.1...v1.1.2) (2026-04-29)
+
+
+### Miscellaneous
+
+* **deps:** bump storage_cmk::terraform-azurerm-key-vault from 1.1.2 to 1.2.0 ([#120](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/120)) ([568f2d0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/568f2d0293a13dcc2d041c1771eb2683eef3137a))
+
 ## [1.1.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.0...v1.1.1) (2026-04-27)
 
 
