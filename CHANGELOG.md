@@ -1,5 +1,31 @@
 # Changelog
 
+## [1.1.2](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.1...v1.1.2) (2026-07-03)
+
+
+### Bug Fixes
+
+* **ci:** remove retired org-checkov caller (Checkov retired org-wide — ADR-0017, Actions[#130](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/130)) ([#131](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/131)) ([facb51d](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/facb51da002fd6f78f1e7db95ba06f74b1560395))
+
+
+### Miscellaneous
+
+* **ci:** re-pin org workflows to Actions v0.8.1 + dependabot auto-merge ([#132](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/132)) ([ef32d38](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/ef32d383a1c2f668d7c594d3a2ac3cff200b42b7))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-dependabot.yml ([#133](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/133)) ([e0509d4](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/e0509d4870d0fb7e2766569caaeaec731612e298))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-dependabot.yml from 0.5.1 to 0.7.0 ([#123](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/123)) ([dc42756](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/dc427569ff45ec7b004cbcee95c177437c054a27))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-markdown-lint.yml ([#129](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/129)) ([f11075e](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/f11075ec132c9538de57aa3d8c24081d864f93ed))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-markdown-lint.yml ([#135](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/135)) ([0597f95](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/0597f9539e6183a9dd770464d6376cdfa45cfd7a))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-release.yml ([#128](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/128)) ([505f409](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/505f40962a4f59a2d832efbbab67fb379c796ccb))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-release.yml ([#134](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/134)) ([416b6c7](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/416b6c798b59b08e12f5b9afd891cdc591e17a78))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-terraform-docs.yml ([#124](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/124)) ([d58f5e4](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/d58f5e4382bb37a704a86f36d8208964b97ad18c))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-terraform-docs.yml ([#137](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/137)) ([f7f1840](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/f7f1840284132881f10e9643275820c8e60b1ca9))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-terraform-fmt.yml ([#126](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/126)) ([a3ad826](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/a3ad826b445dca30705b66c4ba7803e76bc2bddc))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-terraform-validate.yml ([#127](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/127)) ([fd9a276](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/fd9a276da9b64307fadb4cc1cd8381abd42a9e39))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-tree-readme.yml ([#125](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/125)) ([0ee32fd](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/0ee32fd2b04eb0f6b8e60baa33d6399b70e67c53))
+* **deps:** bump Coalfire-CF/Actions/.github/workflows/org-tree-readme.yml from 0.8.1 to 0.8.2 ([#136](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/136)) ([e5857b9](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/e5857b97fee5a058d77e43561314309fcf7610d6))
+* **deps:** bump storage_cmk::terraform-azurerm-key-vault from 1.1.2 to 1.2.0 ([#120](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/120)) ([568f2d0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/568f2d0293a13dcc2d041c1771eb2683eef3137a))
+* **deps:** bump storage_cmk::terraform-azurerm-key-vault from 1.2.0 to 1.2.1 ([#122](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/122)) ([460d755](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/460d755b7683cdadda661a0f840561b614618ecf))
+
 ## [1.1.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.0...v1.1.1) (2026-04-27)
 
 
