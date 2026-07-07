@@ -188,6 +188,7 @@ module "core_sa" {
 Copyright © 2023 Coalfire Systems Inc.
 
 ## Tree
+
 ```text
 .
 |-- CHANGELOG.md
