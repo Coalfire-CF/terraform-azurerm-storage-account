@@ -94,7 +94,7 @@ module "core_sa" {
 | Name | Source | Version |
 |------|--------|---------|
 | <a name="module_diag"></a> [diag](#module\_diag) | git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics | v1.1.5 |
-| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | v1.2.2 |
+| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | d0558574870a00f95b5cee8f001e2ff757065e5e |
 
 ## Resources
 
