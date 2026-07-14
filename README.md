@@ -202,6 +202,16 @@ Copyright © 2023 Coalfire Systems Inc.
 |-- main.tf
 |-- outputs.tf
 |-- release-please-config.json
+|-- test
+|   |-- fixtures
+|   |   |-- storage-account
+|   |       |-- main.tf
+|   |       |-- outputs.tf
+|   |       |-- required_providers.tf
+|   |       |-- variables.tf
+|   |-- go.mod
+|   |-- go.sum
+|   |-- storage_account_test.go
 |-- variables.tf
 |-- versions.tf
 ```
