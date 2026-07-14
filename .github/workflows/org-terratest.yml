@@ -1,0 +1,50 @@
+name: Terratest
+
+# Azure Government behavioral test of THIS module at PR HEAD (ported from the
+# cs-terratest-poc Azure Gov pilot). The fixture under test/fixtures/storage-account
+# sources the module via ../../.., so every PR applies, asserts security posture,
+# and destroys the working-tree code in the Azure Gov test subscription.
+#
+# Azure identity UUIDs are passed as literals (the secrets context is not permitted
+# in reusable-workflow `with:` blocks; they are identifiers, not secrets).
+#
+# No TERRATEST_APP_* secret block: this is a PUBLIC repo and both transitively
+# pulled sibling modules (terraform-azurerm-diagnostics, terraform-azurerm-key-vault)
+# are PUBLIC, so `terraform init` clones them anonymously - no private-module App
+# token is needed. (The CF_TF_PULL_PRIVATE_APP_* org secrets are visibility=private
+# and are not accessible to a public repo regardless.)
+
+on:
+  pull_request:
+    branches: [main]
+    # Real infra costs real money - only run when code under test changes.
+    paths:
+      - "**.tf"
+      - "test/**"
+      - ".github/workflows/org-terratest.yml"
+
+permissions:
+  contents: read # checkout
+  id-token: write # cloud OIDC (a reusable workflow cannot self-grant this)
+  pull-requests: write # post the results comment in pr mode
+
+concurrency:
+  group: terratest-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false # never cancel a live apply/destroy mid-flight
+
+jobs:
+  terratest:
+    uses: Coalfire-CF/Actions/.github/workflows/org-terratest.yml@9451b979c22b3762b3c8a7d4d9493fefaee7edc5 # v0.11.3
+    with:
+      test_mode: pr
+      go_version: "1.26"
+      terraform_version: "1.14.9" # module requires ~> 1.14.9; org default 1.15.7 does not satisfy it
+      test_directory: test
+      test_timeout: 30m
+      azure_environment: azureusgovernment
+      # Azure identity UUIDs are identifiers, not secrets (the AZURE_TERRATEST_* org
+      # secrets remain the stored record). The `secrets` context is not permitted in
+      # a reusable-workflow `with:` block, so they are passed as literals here.
+      azure_client_id: d554cb3f-099e-40fb-a223-038b024e9b9d # cs-terratest-poc-oidc app registration (federated cred added for this repo)
+      azure_tenant_id: 415301f7-aaac-43d0-9e15-8d8aa16fa8f5 # CoalfireSE Gov tenant
+      azure_subscription_id: c14355b2-e625-4197-9538-b3e72fe41801 # CS - Azure Government Pay-As-You-Go
