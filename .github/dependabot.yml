@@ -33,3 +33,12 @@ updates:
       include: "scope"
     labels:
       - "dep/terraform-module"
+  - package-ecosystem: "gomod"
+    directory: "/test"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dep/gomod"
