@@ -28,7 +28,7 @@ resource "azurerm_storage_account" "main" {
 
   dynamic "network_rules" {
     for_each = var.public_network_access_enabled && (var.virtual_network_subnet_ids != null || var.ip_rules != null) ? [1] : []
-    
+
     content {
       default_action             = var.default_action
       ip_rules                   = var.ip_rules
@@ -130,7 +130,7 @@ resource "azurerm_role_assignment" "sa_crypto_user" {
 # Create a new CMK key only if not provided
 module "storage_cmk" {
   count  = var.enable_customer_managed_key && var.cmk_key_name == null ? 1 : 0
-  source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key?ref=v1.2.2"
+  source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key?ref=d0558574870a00f95b5cee8f001e2ff757065e5e" # v1.2.2
 
   name         = "${azurerm_storage_account.main.name}-cmk"
   key_type     = var.cmk_key_type
