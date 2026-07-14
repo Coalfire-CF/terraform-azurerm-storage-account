@@ -23,6 +23,16 @@ updates:
         patterns: ["*"]
         exclude-patterns: ["Coalfire-CF/*"]
         update-types: ["minor", "patch"]
+  - package-ecosystem: "gomod"
+    directory: "/test"
+    schedule:
+      interval: "daily"
+      time: "05:39"
+    commit-message:
+      prefix: "chore"
+      include: "scope"
+    labels:
+      - "dep/gomod"
   - package-ecosystem: "terraform"
     directory: "/"
     schedule:
@@ -33,12 +43,13 @@ updates:
       include: "scope"
     labels:
       - "dep/terraform-module"
-  - package-ecosystem: "gomod"
-    directory: "/test"
+  - package-ecosystem: "terraform"
+    directory: "/test/fixtures/storage-account"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+      time: "05:39"
     commit-message:
       prefix: "chore"
       include: "scope"
     labels:
-      - "dep/gomod"
+      - "dep/terraform-module"
