@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.3](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.2...v1.1.3) (2026-07-23)
+
+
+### Miscellaneous
+
+* adopt Actions v0.12.1 (bypass auto-merge + event-driven re-merge) ([6a1f11f](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/6a1f11fde8007cdc287d393f6ee9991fae403e76))
+* **ci:** adopt Coalfire-CF/Actions v0.11.3 ([#143](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/143)) ([47da539](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/47da539e7b762544ee87e3cb808a050147bed668))
+* **ci:** re-pin org callers to Actions v0.12.0 ([#147](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/147)) ([3d4af47](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/3d4af471a06879efd2d9ff22706c75ef4fc816b9))
+* **deps:** bump the org-actions group with 9 updates ([#148](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/148)) ([307b058](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/307b0581434fd00c4e1b0fda0c893830a6c5b074))
+* **deps:** bump the org-actions group with 9 updates ([#149](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/149)) ([d93522c](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/d93522ca6087d376810efcaffdf7b0ca87914897))
+
 ## [1.1.2](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.1...v1.1.2) (2026-07-03)
 
 
