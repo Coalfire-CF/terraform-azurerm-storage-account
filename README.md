@@ -186,32 +186,3 @@ module "core_sa" {
 ### Copyright
 
 Copyright © 2023 Coalfire Systems Inc.
-
-## Tree
-
-```text
-.
-|-- CHANGELOG.md
-|-- CONTRIBUTING.md
-|-- LICENSE
-|-- README.md
-|-- coalfire_logo.png
-|-- container.tf
-|-- fileshare.tf
-|-- lifecycle.tf
-|-- main.tf
-|-- outputs.tf
-|-- release-please-config.json
-|-- test
-|   |-- fixtures
-|   |   |-- storage-account
-|   |       |-- main.tf
-|   |       |-- outputs.tf
-|   |       |-- required_providers.tf
-|   |       |-- variables.tf
-|   |-- go.mod
-|   |-- go.sum
-|   |-- storage_account_test.go
-|-- variables.tf
-|-- versions.tf
-```
