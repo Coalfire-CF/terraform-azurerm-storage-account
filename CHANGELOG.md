@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.1.3](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.2...v1.1.3) (2026-08-20)
+
+
+### Miscellaneous
+
+* adopt Actions v0.12.1 (bypass auto-merge + event-driven re-merge) ([6a1f11f](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/6a1f11fde8007cdc287d393f6ee9991fae403e76))
+* **ci:** adopt Coalfire-CF/Actions v0.11.3 ([#143](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/143)) ([47da539](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/47da539e7b762544ee87e3cb808a050147bed668))
+* **ci:** re-pin org callers to Actions v0.12.0 ([#147](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/147)) ([3d4af47](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/3d4af471a06879efd2d9ff22706c75ef4fc816b9))
+* **deps:** bump github.com/stretchr/testify in /test ([#157](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/157)) ([7914fa3](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/7914fa3a2833e5afbe6bb641814e0852136650bb))
+* **deps:** bump the org-actions group across 1 directory with 8 updates ([#158](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/158)) ([1a0aed2](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/1a0aed23668791d42c9d531f4b70fd00fe117237))
+* **deps:** bump the org-actions group with 9 updates ([#148](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/148)) ([307b058](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/307b0581434fd00c4e1b0fda0c893830a6c5b074))
+* **deps:** bump the org-actions group with 9 updates ([#149](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/149)) ([d93522c](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/d93522ca6087d376810efcaffdf7b0ca87914897))
+* **deps:** bump the org-actions group with 9 updates ([#150](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/150)) ([2e54123](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/2e5412326c1f21c4ec818533bad8dba26d5038f7))
+* **docs:** generate README from _header.md and _footer.md ([#155](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/155)) ([a05a103](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/a05a103f0412ad6572284f9d73a4b303d56e26f7))
+* refresh PR template ([#154](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/154)) ([f9980d2](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/f9980d2fb29115343f9eea01c01fade8cc4d2626))
+* retire org-tree-readme ([#151](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/151)) ([23b3ce4](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/23b3ce45be77f7657ca72ff7f22f8c8852d9f298))
+
 ## [1.1.2](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.1...v1.1.2) (2026-07-03)
 
 
