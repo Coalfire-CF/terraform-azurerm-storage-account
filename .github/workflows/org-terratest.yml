@@ -34,7 +34,7 @@ concurrency:
 
 jobs:
   terratest:
-    uses: Coalfire-CF/Actions/.github/workflows/org-terratest.yml@0324cf8a90b4b9c523465f53a892a722f613e318 # v0.15.0
+    uses: Coalfire-CF/Actions/.github/workflows/org-terratest.yml@162d71ff9bace6c2994b3b8d9e5bfc33f6b54eed # v0.18.0
     with:
       test_mode: pr
       go_version: "1.26"
