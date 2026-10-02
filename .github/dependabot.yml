@@ -27,19 +27,20 @@ updates:
     directories:
       - "/test"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       time: "05:39"
+    open-pull-requests-limit: 2
     commit-message:
       prefix: "chore"
       include: "scope"
     labels:
       - "dep/gomod"
     groups:
-      gomod:
+      gomod-test:
         applies-to: version-updates
-        group-by: dependency-name
         patterns: ["*"]
-      gomod-security:
+        update-types: ["minor", "patch"]
+      gomod-test-security:
         applies-to: security-updates
         group-by: dependency-name
         patterns: ["*"]
@@ -48,18 +49,23 @@ updates:
       - "/"
       - "/test/fixtures/storage-account"
     schedule:
-      interval: "daily"
+      interval: "weekly"
       time: "05:39"
+    open-pull-requests-limit: 2
     commit-message:
       prefix: "chore"
       include: "scope"
     labels:
       - "dep/terraform-module"
     groups:
+      coalfire-modules:
+        applies-to: version-updates
+        patterns: ["*::github::Coalfire-CF/*"]
       terraform:
         applies-to: version-updates
         group-by: dependency-name
         patterns: ["*"]
+        exclude-patterns: ["*::github::Coalfire-CF/*"]
       terraform-security:
         applies-to: security-updates
         group-by: dependency-name
