@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.4](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.3...v1.1.4) (2026-10-20)
+
+
+### Miscellaneous
+
+* **deps:** bump github.com/stretchr/testify in /test ([#162](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/162)) ([6e00591](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/6e00591833b9a83e0215363fda039fa320079478))
+
 ## [1.1.3](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.2...v1.1.3) (2026-10-20)
 
 
