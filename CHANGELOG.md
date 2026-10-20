@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.4...v2.0.0) (2026-10-20)
+
+
+### ⚠ BREAKING CHANGES
+
+* require Terraform 1.16 and azurerm 5.7 ([#168](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/168))
+
+### Features
+
+* require Terraform 1.16 and azurerm 5.7 ([#168](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/168)) ([28218f1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/28218f12ecaeadcbb4ab705012e14a535c1a9c02))
+
 ## [1.1.4](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.3...v1.1.4) (2026-10-20)
 
 
