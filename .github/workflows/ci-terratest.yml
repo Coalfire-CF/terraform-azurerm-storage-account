@@ -38,7 +38,7 @@ jobs:
     with:
       test_mode: pr
       go_version: "1.26"
-      terraform_version: "1.14.9" # module requires ~> 1.14.9; org default 1.15.7 does not satisfy it
+      terraform_version: "1.16.4" # module requires >= 1.16; org default 1.15.7 does not satisfy it
       test_directory: test
       test_timeout: 30m
       azure_environment: azureusgovernment

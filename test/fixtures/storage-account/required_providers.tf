@@ -1,10 +1,10 @@
 terraform {
-  required_version = "~> 1.14.9" # matches the module's constraint
+  required_version = ">= 1.16" # matches the module's constraint
 
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.70"
+      version = "~> 5.7"
     }
   }
 }

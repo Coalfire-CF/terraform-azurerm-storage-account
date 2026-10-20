@@ -100,24 +100,23 @@ resource "azurerm_storage_account" "main" {
     }
   }
 
-  dynamic "static_website" {
-    for_each = var.static_website != null ? [1] : []
-    content {
-      index_document     = try(var.static_website.index_document, null)
-      error_404_document = try(var.static_website.error_404_document, null)
-    }
-  }
-
   tags = var.tags
 
   lifecycle {
     ignore_changes = [
       customer_managed_key, # required by https://github.com/hashicorp/terraform-provider-azurerm/issues/16085
-      queue_properties,
-      static_website
     ]
   }
 
+}
+
+# azurerm 5.x removed the static_website block from azurerm_storage_account.
+# The static_website input is unchanged; it now drives this separate resource.
+resource "azurerm_storage_account_static_website" "main" {
+  count              = var.static_website != null ? 1 : 0
+  storage_account_id = azurerm_storage_account.main.id
+  index_document     = try(var.static_website.index_document, null)
+  error_404_document = try(var.static_website.error_404_document, null)
 }
 
 resource "azurerm_role_assignment" "sa_crypto_user" {
@@ -130,7 +129,7 @@ resource "azurerm_role_assignment" "sa_crypto_user" {
 # Create a new CMK key only if not provided
 module "storage_cmk" {
   count  = var.enable_customer_managed_key && var.cmk_key_name == null ? 1 : 0
-  source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key?ref=d0558574870a00f95b5cee8f001e2ff757065e5e" # v1.2.2
+  source = "git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key?ref=v2.0.0"
 
   name         = "${azurerm_storage_account.main.name}-cmk"
   key_type     = var.cmk_key_type
@@ -147,18 +146,26 @@ module "storage_cmk" {
   depends_on = [azurerm_role_assignment.sa_crypto_user]
 }
 
-# Use provided CMK key name or the newly created one
+# A caller-provided key is looked up so its versionless ID can be passed below.
+data "azurerm_key_vault_key" "cmk" {
+  count        = var.enable_customer_managed_key && var.cmk_key_name != null ? 1 : 0
+  name         = var.cmk_key_name
+  key_vault_id = var.cmk_key_vault_id
+}
+
+# Use the provided CMK key or the newly created one. azurerm 5.x takes a key ID
+# instead of key_vault_id plus key_name. The versionless ID keeps automatic
+# key version rotation, as the old key_name form did.
 locals {
-  cmk_key_name = var.enable_customer_managed_key ? (
-    var.cmk_key_name != null ? var.cmk_key_name : module.storage_cmk[0].key_name
+  cmk_key_versionless_id = var.enable_customer_managed_key ? (
+    var.cmk_key_name != null ? data.azurerm_key_vault_key.cmk[0].versionless_id : module.storage_cmk[0].key_versionless_id
   ) : null
 }
 
 resource "azurerm_storage_account_customer_managed_key" "main" {
   count              = var.enable_customer_managed_key ? 1 : 0
   storage_account_id = azurerm_storage_account.main.id
-  key_vault_id       = var.cmk_key_vault_id
-  key_name           = local.cmk_key_name
+  key_vault_key_id   = local.cmk_key_versionless_id
 
   depends_on = [
     azurerm_role_assignment.sa_crypto_user,
@@ -194,7 +201,7 @@ resource "azurerm_advanced_threat_protection" "main" {
 }
 
 module "diag" {
-  source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics?ref=v1.1.5"
+  source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics?ref=v2.0.0"
   diag_log_analytics_id = var.diag_log_analytics_id
   resource_id           = azurerm_storage_account.main.id
   resource_type         = "sa"
