@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v2.0.0...v2.0.1) (2026-10-20)
+
+
+### Miscellaneous
+
+* **deps:** bump the org-actions group across 1 directory with 8 updates ([#167](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/167)) ([5247d52](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/5247d524d0c105e3ee62f77a63529fa5dc1932be))
+
 ## [2.0.0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v1.1.4...v2.0.0) (2026-10-20)
 
 
