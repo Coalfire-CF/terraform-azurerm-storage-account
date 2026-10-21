@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.0.0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v2.0.1...v3.0.0) (2026-10-21)
+
+
+### ⚠ BREAKING CHANGES
+
+* public_network_access replaces public_network_access_enabled. blob_properties drops its retention and restore fields. Key outputs are null unless shared_access_key_enabled is true.
+
+### Features
+
+* require Terraform 1.16.6 and azurerm 5.10 ([#171](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/171)) ([2176e8f](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/2176e8f99c28dc555f0b4982e720b32ed2361487))
+
 ## [2.0.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v2.0.0...v2.0.1) (2026-10-20)
 
 
