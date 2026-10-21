@@ -20,12 +20,12 @@ Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
 - Containers
 - Storage share
 - Lifecycle policy
-- CMK key and RBAC Role Assignment (CMK Key can either be inputted into module or created dynamically with the Storage Account)
+- Optional CMK key and RBAC role assignment (the key can be passed in or created by the module)
 - Monitor diagnostic setting
 
 ## Usage
 
-Please review the variables.tf to review the default CMK key created as it can be changed to fit different compliance of environments. Additionally, do not set variable 'cmk\_key\_name' if you want a CMK to be dynamically created for the Storage Account.
+The module creates no customer-managed key by default. Set `enable_customer_managed_key = true` to encrypt with a key in Key Vault. Leave `cmk_key_name` unset to have the module create the key, or set it to use an existing key.
 
 This module can be called as outlined below.
 
@@ -39,30 +39,30 @@ This module can be called as outlined below.
 ```hcl
 provider "azurerm" {
   features {}
+  environment         = "usgovernment"
+  storage_use_azuread = true
 }
 
 module "core_sa" {
-  source                    = "github.com/Coalfire-CF/terraform-azurerm-storage-account?ref=v1.2.11"
-  name                       = "${replace(var.resource_prefix, "-", "")}tfstatesa"
-  resource_group_name        = azurerm_resource_group.management.name
-  location                   = var.location
-  account_kind               = "StorageV2"
-  ip_rules                   = var.ip_for_remote_access
-  diag_log_analytics_id      = azurerm_log_analytics_workspace.core-la.id
-  virtual_network_subnet_ids = var.fw_virtual_network_subnet_ids
-  tags                       = var.tags
+  source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-storage-account?ref=v3.0.0"
+  name                  = "${replace(var.resource_prefix, "-", "")}tfstatesa"
+  resource_group_name   = azurerm_resource_group.management.name
+  location              = var.location
+  account_kind          = "StorageV2"
+  diag_log_analytics_id = azurerm_log_analytics_workspace.core-la.id
+  tags                  = var.tags
 
-  #OPTIONAL
-  public_network_access_enabled = true
-  enable_customer_managed_key   = true
-  cmk_key_vault_id              = module.core_kv.id
-  cmk_key_name                  = azurerm_key_vault_key.tfstate_cmk.name #Define if you want to have already created CMK set for the Storage Account
+  # Private endpoint. Public network access is Disabled by default.
+  endpoint_subnet_id                 = var.pe_subnet_id
+  private_dns_zone_id                = var.blob_private_dns_zone_id
+  private_endpoint_subresource_names = ["blob"]
+
   storage_containers = [
     "tfstate"
   ]
   storage_shares = [
     {
-      name = "test"
+      name  = "test"
       quota = 500
     }
   ]
@@ -74,29 +74,59 @@ module "core_sa" {
       }
     }
   ]
+
+  # OPTIONAL: customer-managed key
+  enable_customer_managed_key = true
+  cmk_key_vault_id            = module.core_kv.id
+  cmk_key_name                = azurerm_key_vault_key.tfstate_cmk.name # Omit to have the module create the key
 }
 ```
+
+## Secure defaults
+
+- Public network access is `Disabled`. The firewall default action is `Deny`, with no IPs or subnets allowed.
+- Shared keys and local users are off. Requests use Entra ID authorization by default.
+- TLS 1.2 and HTTPS only.
+- Anonymous blob access is off.
+- Infrastructure encryption is on. A customer-managed key is optional. It needs a Key Vault and the system-assigned identity.
+- Blob, container and share soft delete keep deleted data for 7 days.
+- On Standard StorageV2 without HNS, blob versioning, change feed and point-in-time restore (6 days) are on by default. Set `point_in_time_restore_enabled = false` to turn them off.
+- HNS, Premium and other account kinds keep soft delete only.
+- Change feed keeps data until `blob_properties.change_feed_retention_in_days` is set.
+- Replication is GRS by default for an alternate site. Use `replication_type` for ZRS or GZRS.
+
+`primary_access_key` and `primary_connection_string` exist for callers that must use Shared Key (for example a SAS for a VM diagnostics extension). They are sensitive and null unless `shared_access_key_enabled = true`.
+
+## Static website
+
+`static_website` writes through the blob data plane. With shared keys off (the default), the caller's azurerm provider must set `storage_use_azuread = true`, and the runner must reach the blob endpoint (a private endpoint, or `public_network_access = "Enabled"` with the runner's IP in `ip_rules`).
+
+To serve the site, set `public_network_access = "Enabled"` with firewall rules, or add a private endpoint for the `web` subresource. The defaults do not serve a public site.
+
+## Supported account kinds
+
+Until terraform-azurerm-diagnostics accepts an account kind or a service list, only Standard StorageV2 (and Standard Storage v1 with LRS, GRS or RAGRS) are expected to apply. The diagnostics module targets the blob, queue, table and file services on every account, and other kinds lack some of them.
 
 <!-- markdownlint-disable MD033 MD034 MD060 -->
 ## Requirements
 
 | Name | Version |
 |------|---------|
-| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.16 |
-| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.7 |
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.16.6, < 2.0 |
+| <a name="requirement_azurerm"></a> [azurerm](#requirement\_azurerm) | ~> 5.10 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | 5.10.0 |
+| <a name="provider_azurerm"></a> [azurerm](#provider\_azurerm) | ~> 5.10 |
 
 ## Modules
 
 | Name | Source | Version |
 |------|--------|---------|
-| <a name="module_diag"></a> [diag](#module\_diag) | git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics | v2.0.0 |
-| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | v2.0.0 |
+| <a name="module_diag"></a> [diag](#module\_diag) | git::https://github.com/Coalfire-CF/terraform-azurerm-diagnostics | v3.0.0 |
+| <a name="module_storage_cmk"></a> [storage\_cmk](#module\_storage\_cmk) | git::https://github.com/Coalfire-CF/terraform-azurerm-key-vault//modules/kv_key | v3.0.0 |
 
 ## Resources
 
@@ -120,8 +150,9 @@ module "core_sa" {
 | <a name="input_access_tier"></a> [access\_tier](#input\_access\_tier) | Defines the access tier for BlobStorage, FileStorage and StorageV2 accounts. Valid options are Hot, Cool, Cold and Premium. | `string` | `"Hot"` | no |
 | <a name="input_account_kind"></a> [account\_kind](#input\_account\_kind) | Account Kind for the Storage Account | `string` | `"StorageV2"` | no |
 | <a name="input_account_tier"></a> [account\_tier](#input\_account\_tier) | Defines the Tier to use for this storage account. Valid options are Standard and Premium. | `string` | `"Standard"` | no |
-| <a name="input_allow_nested_items_to_be_public"></a> [allow\_nested\_items\_to\_be\_public](#input\_allow\_nested\_items\_to\_be\_public) | Allow nested items within the storage account to be public. | `bool` | `false` | no |
-| <a name="input_blob_properties"></a> [blob\_properties](#input\_blob\_properties) | Blob service properties for advanced features including versioning, soft delete, and CORS configuration.<br/><br/>- change\_feed\_enabled: Enable change feed for the blob service<br/>- change\_feed\_retention\_in\_days: Retention period in days for change feed (1-146000)<br/>- default\_service\_version: Default API version for blob service requests<br/>- last\_access\_time\_enabled: Enable last access time tracking for lifecycle management<br/>- versioning\_enabled: Enable blob versioning<br/>- container\_delete\_retention\_policy: Soft delete retention for deleted containers<br/>- cors\_rule: CORS rules for blob service<br/>- delete\_retention\_policy: Soft delete retention for deleted blobs (1-365 days)<br/>- restore\_policy: Point-in-time restore configuration (requires versioning and delete retention) | <pre>object({<br/>    change_feed_enabled           = optional(bool, false)<br/>    change_feed_retention_in_days = optional(number, null)<br/>    default_service_version       = optional(string, null)<br/>    last_access_time_enabled      = optional(bool, false)<br/>    versioning_enabled            = optional(bool, false)<br/>    container_delete_retention_policy = optional(object({<br/>      days = number<br/>    }), null)<br/>    cors_rule = optional(list(object({<br/>      allowed_headers    = list(string)<br/>      allowed_methods    = list(string)<br/>      allowed_origins    = list(string)<br/>      exposed_headers    = list(string)<br/>      max_age_in_seconds = number<br/>    })), null)<br/>    delete_retention_policy = optional(object({<br/>      days = number<br/>    }), null)<br/>    restore_policy = optional(object({<br/>      days = number<br/>    }), null)<br/>  })</pre> | `null` | no |
+| <a name="input_allow_nested_items_to_be_public"></a> [allow\_nested\_items\_to\_be\_public](#input\_allow\_nested\_items\_to\_be\_public) | Allow containers and blobs to be made public. True lets containers and blobs be made anonymously readable. Keep false. | `bool` | `false` | no |
+| <a name="input_blob_delete_retention_days"></a> [blob\_delete\_retention\_days](#input\_blob\_delete\_retention\_days) | Days deleted blobs are kept (blob soft delete). Not applied when account\_kind is FileStorage. Lower values shorten the window to recover deleted data. | `number` | `7` | no |
+| <a name="input_blob_properties"></a> [blob\_properties](#input\_blob\_properties) | Optional blob service features. Soft delete is set by blob\_delete\_retention\_days and container\_delete\_retention\_days. Setting versioning\_enabled or change\_feed\_enabled to false where point-in-time restore applies fails the plan unless point\_in\_time\_restore\_enabled = false.<br/><br/>- change\_feed\_enabled: Change feed. Null means on when point-in-time restore applies, else off.<br/>- change\_feed\_retention\_in\_days: Retention period in days for change feed (1-146000)<br/>- default\_service\_version: Default API version for blob service requests<br/>- last\_access\_time\_enabled: Enable last access time tracking for lifecycle management<br/>- versioning\_enabled: Blob versioning. Null means on when point-in-time restore applies, else off. Not allowed with is\_hns\_enabled.<br/>- cors\_rule: CORS rules for blob service | <pre>object({<br/>    change_feed_enabled           = optional(bool)<br/>    change_feed_retention_in_days = optional(number)<br/>    default_service_version       = optional(string)<br/>    last_access_time_enabled      = optional(bool, false)<br/>    versioning_enabled            = optional(bool)<br/>    cors_rule = optional(list(object({<br/>      allowed_headers    = list(string)<br/>      allowed_methods    = list(string)<br/>      allowed_origins    = list(string)<br/>      exposed_headers    = list(string)<br/>      max_age_in_seconds = number<br/>    })), [])<br/>  })</pre> | `{}` | no |
 | <a name="input_cmk_key_name"></a> [cmk\_key\_name](#input\_cmk\_key\_name) | Name of an existing Key Vault key to use for customer-managed encryption. If null, a new key will be created when enable\_customer\_managed\_key is true. | `string` | `null` | no |
 | <a name="input_cmk_key_size"></a> [cmk\_key\_size](#input\_cmk\_key\_size) | The size of the RSA key for CMK | `number` | `4096` | no |
 | <a name="input_cmk_key_type"></a> [cmk\_key\_type](#input\_cmk\_key\_type) | The type of key to create for CMK. Use 'RSA-HSM' for FedRAMP High or 'RSA' for standard | `string` | `"RSA"` | no |
@@ -129,35 +160,41 @@ module "core_sa" {
 | <a name="input_cmk_rotation_expire_after"></a> [cmk\_rotation\_expire\_after](#input\_cmk\_rotation\_expire\_after) | Duration after which the key will expire (ISO 8601 format, e.g., P180D for 180 days) | `string` | `"P180D"` | no |
 | <a name="input_cmk_rotation_policy_enabled"></a> [cmk\_rotation\_policy\_enabled](#input\_cmk\_rotation\_policy\_enabled) | Enable automatic rotation policy for the CMK key | `bool` | `true` | no |
 | <a name="input_cmk_rotation_time_before_expiry"></a> [cmk\_rotation\_time\_before\_expiry](#input\_cmk\_rotation\_time\_before\_expiry) | Time before expiry when rotation should occur (ISO 8601 format, e.g., P30D for 30 days) | `string` | `"P30D"` | no |
-| <a name="input_cross_tenant_replication_enabled"></a> [cross\_tenant\_replication\_enabled](#input\_cross\_tenant\_replication\_enabled) | Should cross Tenant replication be enabled? Source storage account is in one AAD tenant, and the destination account is in a different tenant. | `bool` | `false` | no |
-| <a name="input_default_action"></a> [default\_action](#input\_default\_action) | The default action for network rules. Valid options are 'Allow' or 'Deny'. | `string` | `"Deny"` | no |
+| <a name="input_container_delete_retention_days"></a> [container\_delete\_retention\_days](#input\_container\_delete\_retention\_days) | Days deleted containers are kept (container soft delete). Not applied when account\_kind is FileStorage. Lower values shorten the window to recover deleted data. | `number` | `7` | no |
+| <a name="input_cross_tenant_replication_enabled"></a> [cross\_tenant\_replication\_enabled](#input\_cross\_tenant\_replication\_enabled) | Should cross Tenant replication be enabled? True lets data replicate to a storage account in another Entra tenant. Keep false. | `bool` | `false` | no |
+| <a name="input_default_action"></a> [default\_action](#input\_default\_action) | Firewall default action when no ip\_rules or virtual\_network\_subnet\_ids match. Allow lets any network that can reach the endpoint in. Keep Deny. | `string` | `"Deny"` | no |
 | <a name="input_diag_log_analytics_id"></a> [diag\_log\_analytics\_id](#input\_diag\_log\_analytics\_id) | ID of the Log Analytics workspace diag settings should be stored in. | `string` | n/a | yes |
 | <a name="input_enable_advanced_threat_protection"></a> [enable\_advanced\_threat\_protection](#input\_enable\_advanced\_threat\_protection) | Whether advanced threat protection is enabled. | `bool` | `false` | no |
-| <a name="input_enable_customer_managed_key"></a> [enable\_customer\_managed\_key](#input\_enable\_customer\_managed\_key) | Enable customer-managed key encryption for the storage account | `bool` | `true` | no |
+| <a name="input_enable_customer_managed_key"></a> [enable\_customer\_managed\_key](#input\_enable\_customer\_managed\_key) | Use a customer-managed key in Key Vault. Needs cmk\_key\_vault\_id and enable\_system\_assigned\_identity = true. When false, platform-managed keys plus infrastructure encryption apply. | `bool` | `false` | no |
 | <a name="input_enable_system_assigned_identity"></a> [enable\_system\_assigned\_identity](#input\_enable\_system\_assigned\_identity) | Enable system-assigned managed identity | `bool` | `true` | no |
 | <a name="input_endpoint_subnet_id"></a> [endpoint\_subnet\_id](#input\_endpoint\_subnet\_id) | The ID of the Subnet from which Private IP Addresses will be allocated for this Private Endpoint. | `string` | `null` | no |
-| <a name="input_https_traffic_only_enabled"></a> [https\_traffic\_only\_enabled](#input\_https\_traffic\_only\_enabled) | Is HTTPS traffic only enabled? | `bool` | `true` | no |
+| <a name="input_https_traffic_only_enabled"></a> [https\_traffic\_only\_enabled](#input\_https\_traffic\_only\_enabled) | Require HTTPS for all requests. Setting false allows unencrypted HTTP; only NFSv3 accounts need that. | `bool` | `true` | no |
 | <a name="input_identity_ids"></a> [identity\_ids](#input\_identity\_ids) | List of user-assigned managed identity IDs | `list(string)` | `null` | no |
-| <a name="input_infrastructure_encryption_enabled"></a> [infrastructure\_encryption\_enabled](#input\_infrastructure\_encryption\_enabled) | Is infrastructure encryption enabled? This provides a second layer of encryption at rest for data in the storage account. | `bool` | `true` | no |
-| <a name="input_ip_rules"></a> [ip\_rules](#input\_ip\_rules) | List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges are not allowed. | `list(string)` | `null` | no |
-| <a name="input_is_hns_enabled"></a> [is\_hns\_enabled](#input\_is\_hns\_enabled) | Is Hierarchical Namespace enabled? This can be used with Azure Data Lake Storage Gen 2. | `bool` | `false` | no |
+| <a name="input_infrastructure_encryption_enabled"></a> [infrastructure\_encryption\_enabled](#input\_infrastructure\_encryption\_enabled) | Infrastructure encryption: a second layer of encryption at rest. False removes the second encryption layer at rest (R12). Keep true. | `bool` | `true` | no |
+| <a name="input_ip_rules"></a> [ip\_rules](#input\_ip\_rules) | Public IPv4 addresses or CIDR ranges allowed through the storage firewall. Private ranges are not allowed. Applies only when public\_network\_access is Enabled. | `list(string)` | `[]` | no |
+| <a name="input_is_hns_enabled"></a> [is\_hns\_enabled](#input\_is\_hns\_enabled) | Is Hierarchical Namespace enabled? This can be used with Azure Data Lake Storage Gen 2. True turns off blob versioning and point-in-time restore. | `bool` | `false` | no |
 | <a name="input_lifecycle_policies"></a> [lifecycle\_policies](#input\_lifecycle\_policies) | List of lifecycle policies to apply to the storage account. Refer to the documentation for more information. | <pre>list(object({<br/>    prefix_match = set(string)<br/>    base_blob = optional(object({<br/>      tier_to_cool_after_days_since_modification_greater_than        = optional(number)<br/>      tier_to_cool_after_days_since_last_access_time_greater_than    = optional(number)<br/>      tier_to_archive_after_days_since_modification_greater_than     = optional(number)<br/>      tier_to_archive_after_days_since_last_access_time_greater_than = optional(number)<br/>      tier_to_archive_after_days_since_last_tier_change_greater_than = optional(number)<br/>      delete_after_days_since_modification_greater_than              = optional(number)<br/>      delete_after_days_since_last_access_time_greater_than          = optional(number)<br/>    }))<br/>    version = optional(object({<br/>      tier_to_cool_after_days_since_modification_greater_than        = optional(number)<br/>      change_tier_to_archive_after_days_since_creation               = optional(number)<br/>      tier_to_archive_after_days_since_last_tier_change_greater_than = optional(number)<br/>      change_tier_to_cool_after_days_since_creation                  = optional(number)<br/>      delete_after_days_since_creation                               = optional(number)<br/>    }))<br/>    snapshot = optional(object({<br/>      change_tier_to_archive_after_days_since_creation               = optional(number)<br/>      tier_to_archive_after_days_since_last_tier_change_greater_than = optional(number)<br/>      change_tier_to_cool_after_days_since_creation                  = optional(number)<br/>      delete_after_days_since_creation_greater_than                  = optional(number)<br/>    }))<br/>  }))</pre> | `null` | no |
+| <a name="input_local_user_enabled"></a> [local\_user\_enabled](#input\_local\_user\_enabled) | Allow SFTP and other local users. True adds password or SSH key identities outside Entra ID. Keep false. | `bool` | `false` | no |
 | <a name="input_location"></a> [location](#input\_location) | The Azure location/region to create resources in. | `string` | n/a | yes |
-| <a name="input_min_tls_version"></a> [min\_tls\_version](#input\_min\_tls\_version) | The minimum TLS version to be permitted on requests to storage. Possible values include: 'TLS1\_0', 'TLS1\_1', 'TLS1\_2'. | `string` | `"TLS1_2"` | no |
+| <a name="input_min_tls_version"></a> [min\_tls\_version](#input\_min\_tls\_version) | The minimum TLS version for requests to storage. azurerm 5 accepts only TLS1\_2. | `string` | `"TLS1_2"` | no |
 | <a name="input_name"></a> [name](#input\_name) | The storage account name | `string` | n/a | yes |
 | <a name="input_network_rules_bypass"></a> [network\_rules\_bypass](#input\_network\_rules\_bypass) | Specifies whether traffic is bypassed for Logging/Metrics/AzureServices. Valid options are any combination of Logging, Metrics, AzureServices, or None. | `list(string)` | <pre>[<br/>  "AzureServices",<br/>  "Logging",<br/>  "Metrics"<br/>]</pre> | no |
-| <a name="input_nfsv3_enabled"></a> [nfsv3\_enabled](#input\_nfsv3\_enabled) | Is NFSv3 protocol enabled. | `bool` | `false` | no |
+| <a name="input_nfsv3_enabled"></a> [nfsv3\_enabled](#input\_nfsv3\_enabled) | Is NFSv3 protocol enabled. NFSv3 authorizes by network only, not Entra ID, and needs https\_traffic\_only\_enabled = false. | `bool` | `false` | no |
+| <a name="input_point_in_time_restore_days"></a> [point\_in\_time\_restore\_days](#input\_point\_in\_time\_restore\_days) | Days that point-in-time restore can go back. Must be below blob\_delete\_retention\_days. | `number` | `6` | no |
+| <a name="input_point_in_time_restore_enabled"></a> [point\_in\_time\_restore\_enabled](#input\_point\_in\_time\_restore\_enabled) | Blob point-in-time restore. Applies only to Standard StorageV2 accounts without is\_hns\_enabled; other accounts ignore it. Turns on blob versioning and change feed unless blob\_properties sets them. False also leaves versioning and change feed off unless blob\_properties sets them, so overwritten or deleted blobs cannot be rolled back. | `bool` | `true` | no |
 | <a name="input_private_dns_zone_id"></a> [private\_dns\_zone\_id](#input\_private\_dns\_zone\_id) | The ID of the private DNS zone to link to the private endpoint if applicable. | `string` | `null` | no |
-| <a name="input_private_endpoint_subresource_names"></a> [private\_endpoint\_subresource\_names](#input\_private\_endpoint\_subresource\_names) | Subresource name which the private endpoint is able to connect to. | `list(string)` | `[]` | no |
+| <a name="input_private_endpoint_subresource_names"></a> [private\_endpoint\_subresource\_names](#input\_private\_endpoint\_subresource\_names) | The one storage subresource the private endpoint connects to: blob, blob\_secondary, dfs, dfs\_secondary, file, queue, queue\_secondary, table, table\_secondary, web or web\_secondary. | `list(string)` | <pre>[<br/>  "blob"<br/>]</pre> | no |
 | <a name="input_private_link_access"></a> [private\_link\_access](#input\_private\_link\_access) | List of the resource ids of the endpoint resource to be granted access. | `list(string)` | `[]` | no |
-| <a name="input_public_network_access_enabled"></a> [public\_network\_access\_enabled](#input\_public\_network\_access\_enabled) | Whether the public network access is enabled. | `bool` | `true` | no |
+| <a name="input_public_network_access"></a> [public\_network\_access](#input\_public\_network\_access) | Public network access to the storage account: Disabled or Enabled. Enabled exposes the service endpoints to the internet, limited only by network\_rules. Keep Disabled and use a private endpoint. | `string` | `"Disabled"` | no |
 | <a name="input_replication_type"></a> [replication\_type](#input\_replication\_type) | Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS. Unless you have a specific reason for data without alternate site requirements  you should minimum use ZRS | `string` | `"GRS"` | no |
 | <a name="input_resource_group_name"></a> [resource\_group\_name](#input\_resource\_group\_name) | The name of the resource group in which to create the resource in. | `string` | n/a | yes |
-| <a name="input_static_website"></a> [static\_website](#input\_static\_website) | Enable and configure static website on the storage account. | `map(string)` | `null` | no |
+| <a name="input_share_delete_retention_days"></a> [share\_delete\_retention\_days](#input\_share\_delete\_retention\_days) | Days deleted file shares are kept (share soft delete). Applied where the account has a file service (Standard StorageV2, FileStorage, and Standard Storage with LRS, GRS or RAGRS). Lower values shorten the window to recover deleted data. | `number` | `7` | no |
+| <a name="input_shared_access_key_enabled"></a> [shared\_access\_key\_enabled](#input\_shared\_access\_key\_enabled) | Allow Shared Key (account key and key-signed SAS) authorization. True lets anyone holding a key bypass Entra ID and RBAC. Keep false unless a caller must use a key. | `bool` | `false` | no |
+| <a name="input_static_website"></a> [static\_website](#input\_static\_website) | Static website settings (index\_document, error\_404\_document). Static website writes through the blob data plane: with shared keys off, the caller's provider needs storage\_use\_azuread = true and the runner needs network access to the blob endpoint. Serving content needs public\_network\_access = Enabled or a web private endpoint. | `map(string)` | `null` | no |
 | <a name="input_storage_containers"></a> [storage\_containers](#input\_storage\_containers) | List of storage containers to create. | `list(string)` | `[]` | no |
 | <a name="input_storage_shares"></a> [storage\_shares](#input\_storage\_shares) | List of storage shares to create and their quotas. | <pre>list(object({<br/>    name  = string<br/>    quota = number<br/>  }))</pre> | `[]` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | The tags to associate with the resources. | `map(string)` | n/a | yes |
-| <a name="input_virtual_network_subnet_ids"></a> [virtual\_network\_subnet\_ids](#input\_virtual\_network\_subnet\_ids) | A list of resource ids for subnets to allow access to the storage account. | `list(string)` | `null` | no |
+| <a name="input_virtual_network_subnet_ids"></a> [virtual\_network\_subnet\_ids](#input\_virtual\_network\_subnet\_ids) | Subnet IDs allowed through the storage firewall. Applies only when public\_network\_access is Enabled. | `list(string)` | `[]` | no |
 
 ## Outputs
 
@@ -168,9 +205,9 @@ module "core_sa" {
 | <a name="output_id"></a> [id](#output\_id) | Storage Account ID. |
 | <a name="output_managed_principal_id"></a> [managed\_principal\_id](#output\_managed\_principal\_id) | System Assigned Managed Identity for the Storage Account. |
 | <a name="output_name"></a> [name](#output\_name) | Storage Account Name. |
-| <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | The primary access key for the storage account. |
+| <a name="output_primary_access_key"></a> [primary\_access\_key](#output\_primary\_access\_key) | Primary access key. Null unless shared\_access\_key\_enabled is true. |
 | <a name="output_primary_blob_endpoint"></a> [primary\_blob\_endpoint](#output\_primary\_blob\_endpoint) | The primary blob endpoint for the storage account. |
-| <a name="output_primary_connection_string"></a> [primary\_connection\_string](#output\_primary\_connection\_string) | Primary SA connection string. |
+| <a name="output_primary_connection_string"></a> [primary\_connection\_string](#output\_primary\_connection\_string) | Primary connection string. Null unless shared\_access\_key\_enabled is true. |
 | <a name="output_primary_web_endpoint"></a> [primary\_web\_endpoint](#output\_primary\_web\_endpoint) | The primary web endpoint for the storage account. |
 | <a name="output_storage_shares_ids"></a> [storage\_shares\_ids](#output\_storage\_shares\_ids) | Map with storage share ids. |
 <!-- markdownlint-enable MD033 MD034 MD060 -->

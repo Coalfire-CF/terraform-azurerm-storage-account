@@ -22,6 +22,11 @@ variable "replication_type" {
   type        = string
   description = "Defines the type of replication to use for this storage account. Valid options are LRS, GRS, RAGRS, ZRS, GZRS and RAGZRS. Unless you have a specific reason for data without alternate site requirements  you should minimum use ZRS"
   default     = "GRS" # GRS is the default to align with the Azure NIST/FedRAMP Policy
+
+  validation {
+    condition     = contains(["LRS", "GRS", "RAGRS", "ZRS", "GZRS", "RAGZRS"], var.replication_type)
+    error_message = "replication_type must be one of LRS, GRS, RAGRS, ZRS, GZRS, RAGZRS."
+  }
 }
 
 variable "diag_log_analytics_id" {
@@ -53,26 +58,33 @@ variable "account_tier" {
 
 variable "static_website" {
   type        = map(string)
-  description = "Enable and configure static website on the storage account."
+  description = "Static website settings (index_document, error_404_document). Static website writes through the blob data plane: with shared keys off, the caller's provider needs storage_use_azuread = true and the runner needs network access to the blob endpoint. Serving content needs public_network_access = Enabled or a web private endpoint."
   default     = null
 }
 
 variable "virtual_network_subnet_ids" {
   type        = list(string)
-  description = "A list of resource ids for subnets to allow access to the storage account."
-  default     = null
+  description = "Subnet IDs allowed through the storage firewall. Applies only when public_network_access is Enabled."
+  default     = []
+  nullable    = false
 }
 
 variable "default_action" {
   type        = string
-  description = "The default action for network rules. Valid options are 'Allow' or 'Deny'."
+  description = "Firewall default action when no ip_rules or virtual_network_subnet_ids match. Allow lets any network that can reach the endpoint in. Keep Deny."
   default     = "Deny"
+
+  validation {
+    condition     = contains(["Allow", "Deny"], var.default_action)
+    error_message = "default_action must be 'Allow' or 'Deny'."
+  }
 }
 
 variable "ip_rules" {
   type        = list(string)
-  description = "List of public IP or IP ranges in CIDR Format. Only IPv4 addresses are allowed. Private IP address ranges are not allowed."
-  default     = null
+  description = "Public IPv4 addresses or CIDR ranges allowed through the storage firewall. Private ranges are not allowed. Applies only when public_network_access is Enabled."
+  default     = []
+  nullable    = false
 }
 
 variable "private_link_access" {
@@ -83,31 +95,36 @@ variable "private_link_access" {
 
 variable "https_traffic_only_enabled" {
   type        = bool
-  description = "Is HTTPS traffic only enabled?"
+  description = "Require HTTPS for all requests. Setting false allows unencrypted HTTP; only NFSv3 accounts need that."
   default     = true
 }
 
 variable "min_tls_version" {
   type        = string
-  description = "The minimum TLS version to be permitted on requests to storage. Possible values include: 'TLS1_0', 'TLS1_1', 'TLS1_2'."
+  description = "The minimum TLS version for requests to storage. azurerm 5 accepts only TLS1_2."
   default     = "TLS1_2"
+
+  validation {
+    condition     = var.min_tls_version == "TLS1_2"
+    error_message = "min_tls_version must be TLS1_2."
+  }
 }
 
 variable "allow_nested_items_to_be_public" {
   type        = bool
-  description = "Allow nested items within the storage account to be public."
+  description = "Allow containers and blobs to be made public. True lets containers and blobs be made anonymously readable. Keep false."
   default     = false
 }
 
 variable "is_hns_enabled" {
   type        = bool
-  description = "Is Hierarchical Namespace enabled? This can be used with Azure Data Lake Storage Gen 2."
+  description = "Is Hierarchical Namespace enabled? This can be used with Azure Data Lake Storage Gen 2. True turns off blob versioning and point-in-time restore."
   default     = false
 }
 
 variable "nfsv3_enabled" {
   type        = bool
-  description = "Is NFSv3 protocol enabled."
+  description = "Is NFSv3 protocol enabled. NFSv3 authorizes by network only, not Entra ID, and needs https_traffic_only_enabled = false."
   default     = false
 }
 
@@ -117,21 +134,38 @@ variable "network_rules_bypass" {
   default     = ["AzureServices", "Logging", "Metrics"]
 }
 
-variable "public_network_access_enabled" {
+variable "public_network_access" {
+  type        = string
+  description = "Public network access to the storage account: Disabled or Enabled. Enabled exposes the service endpoints to the internet, limited only by network_rules. Keep Disabled and use a private endpoint."
+  default     = "Disabled"
+
+  validation {
+    condition     = contains(["Disabled", "Enabled"], var.public_network_access)
+    error_message = "public_network_access must be 'Disabled' or 'Enabled'."
+  }
+}
+
+variable "shared_access_key_enabled" {
   type        = bool
-  description = "Whether the public network access is enabled."
-  default     = true
+  description = "Allow Shared Key (account key and key-signed SAS) authorization. True lets anyone holding a key bypass Entra ID and RBAC. Keep false unless a caller must use a key."
+  default     = false
+}
+
+variable "local_user_enabled" {
+  type        = bool
+  description = "Allow SFTP and other local users. True adds password or SSH key identities outside Entra ID. Keep false."
+  default     = false
 }
 
 variable "infrastructure_encryption_enabled" {
   type        = bool
-  description = "Is infrastructure encryption enabled? This provides a second layer of encryption at rest for data in the storage account."
+  description = "Infrastructure encryption: a second layer of encryption at rest. False removes the second encryption layer at rest (R12). Keep true."
   default     = true
 }
 
 variable "cross_tenant_replication_enabled" {
   type        = bool
-  description = "Should cross Tenant replication be enabled? Source storage account is in one AAD tenant, and the destination account is in a different tenant."
+  description = "Should cross Tenant replication be enabled? True lets data replicate to a storage account in another Entra tenant. Keep false."
   default     = false
 }
 
@@ -211,8 +245,13 @@ variable "endpoint_subnet_id" {
 
 variable "private_endpoint_subresource_names" {
   type        = list(string)
-  description = "Subresource name which the private endpoint is able to connect to."
-  default     = []
+  description = "The one storage subresource the private endpoint connects to: blob, blob_secondary, dfs, dfs_secondary, file, queue, queue_secondary, table, table_secondary, web or web_secondary."
+  default     = ["blob"]
+
+  validation {
+    condition     = length(var.private_endpoint_subresource_names) == 1
+    error_message = "private_endpoint_subresource_names must hold exactly one subresource."
+  }
 }
 
 variable "private_dns_zone_id" {
@@ -229,9 +268,9 @@ variable "cmk_key_name" {
 }
 
 variable "enable_customer_managed_key" {
-  description = "Enable customer-managed key encryption for the storage account"
+  description = "Use a customer-managed key in Key Vault. Needs cmk_key_vault_id and enable_system_assigned_identity = true. When false, platform-managed keys plus infrastructure encryption apply."
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "cmk_key_vault_id" {
@@ -273,40 +312,84 @@ variable "cmk_rotation_time_before_expiry" {
 ## Blob Service Properties Variable ##
 variable "blob_properties" {
   type = object({
-    change_feed_enabled           = optional(bool, false)
-    change_feed_retention_in_days = optional(number, null)
-    default_service_version       = optional(string, null)
+    change_feed_enabled           = optional(bool)
+    change_feed_retention_in_days = optional(number)
+    default_service_version       = optional(string)
     last_access_time_enabled      = optional(bool, false)
-    versioning_enabled            = optional(bool, false)
-    container_delete_retention_policy = optional(object({
-      days = number
-    }), null)
+    versioning_enabled            = optional(bool)
     cors_rule = optional(list(object({
       allowed_headers    = list(string)
       allowed_methods    = list(string)
       allowed_origins    = list(string)
       exposed_headers    = list(string)
       max_age_in_seconds = number
-    })), null)
-    delete_retention_policy = optional(object({
-      days = number
-    }), null)
-    restore_policy = optional(object({
-      days = number
-    }), null)
+    })), [])
   })
-  default     = null
+  default     = {}
+  nullable    = false
   description = <<-DESCRIPTION
-    Blob service properties for advanced features including versioning, soft delete, and CORS configuration.
-    
-    - change_feed_enabled: Enable change feed for the blob service
+    Optional blob service features. Soft delete is set by blob_delete_retention_days and container_delete_retention_days. Setting versioning_enabled or change_feed_enabled to false where point-in-time restore applies fails the plan unless point_in_time_restore_enabled = false.
+
+    - change_feed_enabled: Change feed. Null means on when point-in-time restore applies, else off.
     - change_feed_retention_in_days: Retention period in days for change feed (1-146000)
     - default_service_version: Default API version for blob service requests
     - last_access_time_enabled: Enable last access time tracking for lifecycle management
-    - versioning_enabled: Enable blob versioning
-    - container_delete_retention_policy: Soft delete retention for deleted containers
+    - versioning_enabled: Blob versioning. Null means on when point-in-time restore applies, else off. Not allowed with is_hns_enabled.
     - cors_rule: CORS rules for blob service
-    - delete_retention_policy: Soft delete retention for deleted blobs (1-365 days)
-    - restore_policy: Point-in-time restore configuration (requires versioning and delete retention)
   DESCRIPTION
+}
+
+variable "blob_delete_retention_days" {
+  type        = number
+  description = "Days deleted blobs are kept (blob soft delete). Not applied when account_kind is FileStorage. Lower values shorten the window to recover deleted data."
+  default     = 7
+  nullable    = false
+
+  validation {
+    condition     = var.blob_delete_retention_days >= 1 && var.blob_delete_retention_days <= 365
+    error_message = "blob_delete_retention_days must be between 1 and 365."
+  }
+}
+
+variable "container_delete_retention_days" {
+  type        = number
+  description = "Days deleted containers are kept (container soft delete). Not applied when account_kind is FileStorage. Lower values shorten the window to recover deleted data."
+  default     = 7
+  nullable    = false
+
+  validation {
+    condition     = var.container_delete_retention_days >= 1 && var.container_delete_retention_days <= 365
+    error_message = "container_delete_retention_days must be between 1 and 365."
+  }
+}
+
+variable "share_delete_retention_days" {
+  type        = number
+  description = "Days deleted file shares are kept (share soft delete). Applied where the account has a file service (Standard StorageV2, FileStorage, and Standard Storage with LRS, GRS or RAGRS). Lower values shorten the window to recover deleted data."
+  default     = 7
+  nullable    = false
+
+  validation {
+    condition     = var.share_delete_retention_days >= 1 && var.share_delete_retention_days <= 365
+    error_message = "share_delete_retention_days must be between 1 and 365."
+  }
+}
+
+variable "point_in_time_restore_enabled" {
+  type        = bool
+  description = "Blob point-in-time restore. Applies only to Standard StorageV2 accounts without is_hns_enabled; other accounts ignore it. Turns on blob versioning and change feed unless blob_properties sets them. False also leaves versioning and change feed off unless blob_properties sets them, so overwritten or deleted blobs cannot be rolled back."
+  default     = true
+  nullable    = false
+}
+
+variable "point_in_time_restore_days" {
+  type        = number
+  description = "Days that point-in-time restore can go back. Must be below blob_delete_retention_days."
+  default     = 6
+  nullable    = false
+
+  validation {
+    condition     = var.point_in_time_restore_days >= 1 && var.point_in_time_restore_days <= 364
+    error_message = "point_in_time_restore_days must be between 1 and 364."
+  }
 }

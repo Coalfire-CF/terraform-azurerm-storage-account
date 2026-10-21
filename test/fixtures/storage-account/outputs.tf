@@ -17,3 +17,13 @@ output "min_tls_version" {
   value       = data.azurerm_storage_account.created.min_tls_version
   description = "Read-back posture: minimum TLS version."
 }
+
+output "public_network_access" {
+  value       = data.azurerm_storage_account.created.public_network_access
+  description = "Read-back posture: public network access."
+}
+
+output "infrastructure_encryption_enabled" {
+  value       = data.azurerm_storage_account.created.infrastructure_encryption_enabled
+  description = "Read-back posture: infrastructure encryption."
+}
