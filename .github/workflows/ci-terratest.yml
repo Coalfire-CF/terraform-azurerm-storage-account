@@ -21,7 +21,7 @@ on:
     paths:
       - "**.tf"
       - "test/**"
-      - ".github/workflows/org-terratest.yml"
+      - ".github/workflows/ci-terratest.yml"
 
 permissions:
   contents: read # checkout
@@ -38,7 +38,7 @@ jobs:
     with:
       test_mode: pr
       go_version: "1.26"
-      terraform_version: "1.16.4" # module requires >= 1.16; org default 1.15.7 does not satisfy it
+      terraform_version: "1.16.6" # module requires >= 1.16.6
       test_directory: test
       test_timeout: 30m
       azure_environment: azureusgovernment

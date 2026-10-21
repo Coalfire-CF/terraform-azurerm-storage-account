@@ -15,6 +15,14 @@ mock_provider "azurerm" {
     }
   }
 
+  mock_data "azurerm_monitor_diagnostic_categories" {
+    defaults = {
+      log_category_groups = ["allLogs"]
+      log_category_types  = ["StorageRead"]
+      metrics             = ["Transaction"]
+    }
+  }
+
   mock_data "azurerm_key_vault_key" {
     defaults = {
       versionless_id = "https://test-kv.vault.usgovcloudapi.net/keys/existing-cmk"
@@ -80,7 +88,8 @@ run "cmk_uses_existing_key_versionless_id" {
   command = apply
 
   variables {
-    cmk_key_name = "existing-cmk"
+    enable_customer_managed_key = true
+    cmk_key_name                = "existing-cmk"
   }
 
   assert {
@@ -101,6 +110,10 @@ run "cmk_uses_existing_key_versionless_id" {
 
 run "cmk_uses_created_key_versionless_id" {
   command = apply
+
+  variables {
+    enable_customer_managed_key = true
+  }
 
   assert {
     condition     = length(module.storage_cmk) == 1

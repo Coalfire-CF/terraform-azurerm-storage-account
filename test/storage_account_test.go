@@ -47,4 +47,6 @@ func TestTerraformAzureStorageAccount(t *testing.T) {
 	assert.Contains(t, terraform.Output(t, terraformOptions, "primary_blob_endpoint"), ".blob.core.usgovcloudapi.net")
 	assert.Equal(t, "true", terraform.Output(t, terraformOptions, "https_traffic_only_enabled"))
 	assert.Equal(t, "TLS1_2", terraform.Output(t, terraformOptions, "min_tls_version"))
+	assert.Equal(t, "Disabled", terraform.Output(t, terraformOptions, "public_network_access"))
+	assert.Equal(t, "true", terraform.Output(t, terraformOptions, "infrastructure_encryption_enabled"))
 }

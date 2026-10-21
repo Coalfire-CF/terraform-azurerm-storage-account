@@ -18,12 +18,12 @@ Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
 - Containers
 - Storage share
 - Lifecycle policy
-- CMK key and RBAC Role Assignment (CMK Key can either be inputted into module or created dynamically with the Storage Account)
+- Optional CMK key and RBAC role assignment (the key can be passed in or created by the module)
 - Monitor diagnostic setting
 
 ## Usage
 
-Please review the variables.tf to review the default CMK key created as it can be changed to fit different compliance of environments. Additionally, do not set variable 'cmk_key_name' if you want a CMK to be dynamically created for the Storage Account.
+The module creates no customer-managed key by default. Set `enable_customer_managed_key = true` to encrypt with a key in Key Vault. Leave `cmk_key_name` unset to have the module create the key, or set it to use an existing key.
 
 This module can be called as outlined below.
 
@@ -37,30 +37,30 @@ This module can be called as outlined below.
 ```hcl
 provider "azurerm" {
   features {}
+  environment         = "usgovernment"
+  storage_use_azuread = true
 }
 
 module "core_sa" {
-  source                    = "github.com/Coalfire-CF/terraform-azurerm-storage-account?ref=v1.2.11"
-  name                       = "${replace(var.resource_prefix, "-", "")}tfstatesa"
-  resource_group_name        = azurerm_resource_group.management.name
-  location                   = var.location
-  account_kind               = "StorageV2"
-  ip_rules                   = var.ip_for_remote_access
-  diag_log_analytics_id      = azurerm_log_analytics_workspace.core-la.id
-  virtual_network_subnet_ids = var.fw_virtual_network_subnet_ids
-  tags                       = var.tags
+  source                = "git::https://github.com/Coalfire-CF/terraform-azurerm-storage-account?ref=v3.0.0"
+  name                  = "${replace(var.resource_prefix, "-", "")}tfstatesa"
+  resource_group_name   = azurerm_resource_group.management.name
+  location              = var.location
+  account_kind          = "StorageV2"
+  diag_log_analytics_id = azurerm_log_analytics_workspace.core-la.id
+  tags                  = var.tags
 
-  #OPTIONAL
-  public_network_access_enabled = true
-  enable_customer_managed_key   = true
-  cmk_key_vault_id              = module.core_kv.id
-  cmk_key_name                  = azurerm_key_vault_key.tfstate_cmk.name #Define if you want to have already created CMK set for the Storage Account
+  # Private endpoint. Public network access is Disabled by default.
+  endpoint_subnet_id                 = var.pe_subnet_id
+  private_dns_zone_id                = var.blob_private_dns_zone_id
+  private_endpoint_subresource_names = ["blob"]
+
   storage_containers = [
     "tfstate"
   ]
   storage_shares = [
     {
-      name = "test"
+      name  = "test"
       quota = 500
     }
   ]
@@ -72,6 +72,35 @@ module "core_sa" {
       }
     }
   ]
+
+  # OPTIONAL: customer-managed key
+  enable_customer_managed_key = true
+  cmk_key_vault_id            = module.core_kv.id
+  cmk_key_name                = azurerm_key_vault_key.tfstate_cmk.name # Omit to have the module create the key
 }
 ```
 
+## Secure defaults
+
+- Public network access is `Disabled`. The firewall default action is `Deny`, with no IPs or subnets allowed.
+- Shared keys and local users are off. Requests use Entra ID authorization by default.
+- TLS 1.2 and HTTPS only.
+- Anonymous blob access is off.
+- Infrastructure encryption is on. A customer-managed key is optional. It needs a Key Vault and the system-assigned identity.
+- Blob, container and share soft delete keep deleted data for 7 days.
+- On Standard StorageV2 without HNS, blob versioning, change feed and point-in-time restore (6 days) are on by default. Set `point_in_time_restore_enabled = false` to turn them off.
+- HNS, Premium and other account kinds keep soft delete only.
+- Change feed keeps data until `blob_properties.change_feed_retention_in_days` is set.
+- Replication is GRS by default for an alternate site. Use `replication_type` for ZRS or GZRS.
+
+`primary_access_key` and `primary_connection_string` exist for callers that must use Shared Key (for example a SAS for a VM diagnostics extension). They are sensitive and null unless `shared_access_key_enabled = true`.
+
+## Static website
+
+`static_website` writes through the blob data plane. With shared keys off (the default), the caller's azurerm provider must set `storage_use_azuread = true`, and the runner must reach the blob endpoint (a private endpoint, or `public_network_access = "Enabled"` with the runner's IP in `ip_rules`).
+
+To serve the site, set `public_network_access = "Enabled"` with firewall rules, or add a private endpoint for the `web` subresource. The defaults do not serve a public site.
+
+## Supported account kinds
+
+Until terraform-azurerm-diagnostics accepts an account kind or a service list, only Standard StorageV2 (and Standard Storage v1 with LRS, GRS or RAGRS) are expected to apply. The diagnostics module targets the blob, queue, table and file services on every account, and other kinds lack some of them.

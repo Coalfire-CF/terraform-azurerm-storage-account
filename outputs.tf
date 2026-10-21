@@ -9,19 +9,19 @@ output "id" {
 }
 
 output "managed_principal_id" {
-  value       = azurerm_storage_account.main.identity.0.principal_id
+  value       = try(azurerm_storage_account.main.identity[0].principal_id, null)
   description = "System Assigned Managed Identity for the Storage Account."
 }
 
 output "primary_connection_string" {
-  value       = azurerm_storage_account.main.primary_connection_string
-  description = "Primary SA connection string."
+  value       = var.shared_access_key_enabled ? azurerm_storage_account.main.primary_connection_string : null
+  description = "Primary connection string. Null unless shared_access_key_enabled is true."
   sensitive   = true
 }
 
 output "primary_access_key" {
-  value       = azurerm_storage_account.main.primary_access_key
-  description = "The primary access key for the storage account."
+  value       = var.shared_access_key_enabled ? azurerm_storage_account.main.primary_access_key : null
+  description = "Primary access key. Null unless shared_access_key_enabled is true."
   sensitive   = true
 }
 
