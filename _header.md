@@ -4,7 +4,8 @@
 
 ## Description
 
-This module manages an Azure Storage Account, lifecycle policies, containers and storage shares. It is used in the [Coalfire-Azure-RAMPpak](https://github.com/Coalfire-CF/Coalfire-Azure-RAMPpak) FedRAMP Framework.
+This module manages an Azure Storage Account, lifecycle policies, containers and storage shares. It is used in the
+[Coalfire-Azure-RAMPpak](https://github.com/Coalfire-CF/Coalfire-Azure-RAMPpak) FedRAMP Framework.
 
 Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
 
@@ -23,7 +24,8 @@ Learn more at [Coalfire OpenSource](https://coalfire.com/opensource).
 
 ## Usage
 
-The module creates no customer-managed key by default. Set `enable_customer_managed_key = true` to encrypt with a key in Key Vault. Leave `cmk_key_name` unset to have the module create the key, or set it to use an existing key.
+The module creates no customer-managed key by default. Set `enable_customer_managed_key = true` to encrypt with a key in
+Key Vault. Leave `cmk_key_name` unset to have the module create the key, or set it to use an existing key.
 
 This module can be called as outlined below.
 
@@ -86,21 +88,29 @@ module "core_sa" {
 - Shared keys and local users are off. Requests use Entra ID authorization by default.
 - TLS 1.2 and HTTPS only.
 - Anonymous blob access is off.
-- Infrastructure encryption is on. A customer-managed key is optional. It needs a Key Vault and the system-assigned identity.
+- Infrastructure encryption is on. A customer-managed key is optional. It needs a Key Vault and the system-assigned
+  identity.
 - Blob, container and share soft delete keep deleted data for 7 days.
-- On Standard StorageV2 without HNS, blob versioning, change feed and point-in-time restore (6 days) are on by default. Set `point_in_time_restore_enabled = false` to turn them off.
+- On Standard StorageV2 without HNS, blob versioning, change feed and point-in-time restore (6 days) are on by default.
+  Set `point_in_time_restore_enabled = false` to turn them off.
 - HNS, Premium and other account kinds keep soft delete only.
 - Change feed keeps data until `blob_properties.change_feed_retention_in_days` is set.
 - Replication is GRS by default for an alternate site. Use `replication_type` for ZRS or GZRS.
 
-`primary_access_key` and `primary_connection_string` exist for callers that must use Shared Key (for example a SAS for a VM diagnostics extension). They are sensitive and null unless `shared_access_key_enabled = true`.
+`primary_access_key` and `primary_connection_string` exist for callers that must use Shared Key (for example a SAS for a
+VM diagnostics extension). They are sensitive and null unless `shared_access_key_enabled = true`.
 
 ## Static website
 
-`static_website` writes through the blob data plane. With shared keys off (the default), the caller's azurerm provider must set `storage_use_azuread = true`, and the runner must reach the blob endpoint (a private endpoint, or `public_network_access = "Enabled"` with the runner's IP in `ip_rules`).
+`static_website` writes through the blob data plane. With shared keys off (the default), the caller's azurerm provider
+must set `storage_use_azuread = true`, and the runner must reach the blob endpoint (a private endpoint, or
+`public_network_access = "Enabled"` with the runner's IP in `ip_rules`).
 
-To serve the site, set `public_network_access = "Enabled"` with firewall rules, or add a private endpoint for the `web` subresource. The defaults do not serve a public site.
+To serve the site, set `public_network_access = "Enabled"` with firewall rules, or add a private endpoint for the `web`
+subresource. The defaults do not serve a public site.
 
 ## Supported account kinds
 
-Until terraform-azurerm-diagnostics accepts an account kind or a service list, only Standard StorageV2 (and Standard Storage v1 with LRS, GRS or RAGRS) are expected to apply. The diagnostics module targets the blob, queue, table and file services on every account, and other kinds lack some of them.
+Until terraform-azurerm-diagnostics accepts an account kind or a service list, only Standard StorageV2 (and Standard
+Storage v1 with LRS, GRS or RAGRS) are expected to apply. The diagnostics module targets the blob, queue, table and file
+services on every account, and other kinds lack some of them.
