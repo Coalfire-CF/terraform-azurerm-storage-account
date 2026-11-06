@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.0.1](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v3.0.0...v3.0.1) (2026-11-06)
+
+
+### Documentation
+
+* wrap Markdown lines at 120 characters (Coalfire-CF/Actions[#375](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/375)) ([#173](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/issues/173)) ([2350d7f](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/commit/2350d7f04280fdc15a909459fca86426a02ee233))
+
 ## [3.0.0](https://github.com/Coalfire-CF/terraform-azurerm-storage-account/compare/v2.0.1...v3.0.0) (2026-10-21)
 
 
